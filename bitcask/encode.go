@@ -4,8 +4,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"hash/crc32"
-
-//	"github.com/laohanlinux/go-logger/logger"
 )
 
 // ErrCrc32 ...
