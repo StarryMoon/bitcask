@@ -3,8 +3,9 @@ package main
 import (
 	"os"
         "strings"
+        "time"
+        "fmt"
 	"github.com/bitcask"
-//	"github.com/laohanlinux/go-logger/logger"
 )
 
 func main() {
@@ -16,10 +17,12 @@ func main() {
 	defer bc.Close()
 
         key := []byte("usutachina")
-        value := []byte(strings.Repeat("x", 1280000))
-        for i := 0; i < 2000; i++ {
+        value := []byte(strings.Repeat("x", 128))
+        fmt.Println("starting... \n", time.Now().UnixNano() / 1e6)
+        for i := 0; i < 2000000; i++ {
             bc.Put(key, value)
         }
+        fmt.Println("ending... \n", time.Now().UnixNano() / 1e6)
 //	k1 := []byte("xiaoMing")
 //	v1 := []byte("毕业于新东方推土机学院")
 

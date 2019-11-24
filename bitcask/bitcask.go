@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-
-//	"github.com/laohanlinux/go-logger/logger"
 )
 
 var (
@@ -80,7 +78,7 @@ func Open(dirName string, opts *Options) (*BitCask, error) {
 type BitCask struct {
 	Opts      *Options      // opts for bitcask
 	oldFile   *BFiles       // hint file, data file
-	lockFile  *os.File      // lock file with process
+	lockFile  *os.File      // lock storage dir
 	keyDirs   *KeyDirs      // hashMap in memory
 	dirFile   string        // bitcask storage dir
 	writeFile *BFile        // writeable files(active data file, active hint file )
