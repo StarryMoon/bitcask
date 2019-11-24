@@ -20,7 +20,6 @@ func Open(dirName string, opts *Options) (*BitCask, error) {
 		opts = &opts1
 	}
 
-	//make sure the fileName is exits
 	_, err := os.Stat(dirName)
 	if err != nil && !os.IsNotExist(err) {
 		return nil, err
@@ -39,6 +38,7 @@ func Open(dirName string, opts *Options) (*BitCask, error) {
 		oldFile: newBFiles(),
 		rwLock:  &sync.RWMutex{},
 	}
+
 	// lock file
 	b.lockFile, err = lockFile(dirName + "/" + lockFileName)
 	if err != nil {
@@ -50,6 +50,7 @@ func Open(dirName string, opts *Options) (*BitCask, error) {
 	// scan hint file
 	files, _ := b.readableFiles()
 	b.parseHint(files)
+
 	// get the last fileid
 	fileID, hintFp := lastFileInfo(files)
 
@@ -81,8 +82,8 @@ type BitCask struct {
 	lockFile  *os.File      // lock storage dir
 	keyDirs   *KeyDirs      // hashMap in memory
 	dirFile   string        // bitcask storage dir
-	writeFile *BFile        // writeable files(active data file, active hint file )
-	rwLock    *sync.RWMutex // rwlocker for bitcask Get and put Operation
+	writeFile *BFile        // writeable files(active data/hint file )
+	rwLock    *sync.RWMutex // rwlocker for bitcask Get and Put Operation
 }
 
 // Close opening fp
@@ -140,7 +141,7 @@ func (bc *BitCask) Get(key []byte) ([]byte, error) {
 	return bf.read(e.valueOffset, e.valueSz)
 }
 
-// Del value by key  ==> key=0, value=0
+// Del  ==> tombstone : key=0, value=0
 func (bc *BitCask) Del(key []byte) error {
 	bc.rwLock.Lock()
 	defer bc.rwLock.Unlock()
