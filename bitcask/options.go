@@ -6,10 +6,11 @@ const (
 	defaultTimeoutSecs   = 10
 	defaultValueMaxSize  = 1 << 20 // 1m
 	defaultCheckSumCrc32 = false
+//	defaultKeyMaxSize = 1 << 6   // 64 bytes
+//	defaultSync = false   // default synchronization action
 )
 
-// Options .
-// now, just MaxFileSize is used
+// Options
 type Options struct {
 	ExpirySecs      int
 	MaxFileSize     uint64
@@ -18,6 +19,8 @@ type Options struct {
 	MergeSecs       int
 	CheckSumCrc32   bool
 	ValueMaxSize    uint64
+//	KeyMaxSize      uint32
+//	Sync            bool
 }
 
 // NewOptions

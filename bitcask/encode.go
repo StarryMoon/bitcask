@@ -6,7 +6,7 @@ import (
 	"hash/crc32"
 )
 
-// ErrCrc32 ...
+// ErrCrc32
 var ErrCrc32 = fmt.Errorf("checksumIEEE error")
 
 func encodeEntry(tStamp, keySize, valueSize uint32, key, value []byte) []byte {

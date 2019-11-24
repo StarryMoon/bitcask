@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	ErrNotFound = fmt.Errorf("Not Found.")
-	ErrIsNotDir = fmt.Errorf("the file is not dir")
+	ErrNotFound = fmt.Errorf("Error: Not Found.")
+	ErrIsNotDir = fmt.Errorf("Error: the file is not dir.")
 )
 
 func Open(dirName string, opts *Options) (*BitCask, error) {
@@ -98,7 +98,7 @@ func (bc *BitCask) Close() {
 	os.Remove(bc.dirFile + "/" + lockFileName)
 }
 
-// Put key/value
+// Put
 func (bc *BitCask) Put(key []byte, value []byte) error {
 	bc.rwLock.Lock()
 	defer bc.rwLock.Unlock()
@@ -114,8 +114,9 @@ func (bc *BitCask) Put(key []byte, value []byte) error {
 	return nil
 }
 
-// Get ...
+// Get
 func (bc *BitCask) Get(key []byte) ([]byte, error) {
+//	bc.rwLock.RLock()
 	e := keyDirs.get(string(key))
 	if e == nil {
 		return nil, ErrNotFound
@@ -129,13 +130,17 @@ func (bc *BitCask) Get(key []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	//TODO
-	// assrt file crc32
-	//logger.Info("fileID", fileID, "entry offset:", e.valueOffset, "\t entryLen:", e.valueSz)
+//	val, err = bf.read(e.valueOffset, e.valueSz)
+//  logger.Info("fileID", fileID, "entry offset:", e.valueOffset, "\t entryLen:", e.valueSz)
+//	bc.rwLock.RUlock()
+//	if err != nil {
+//		return nil, err
+//	}
+
 	return bf.read(e.valueOffset, e.valueSz)
 }
 
-// Del value by key
+// Del value by key  ==> key=0, value=0
 func (bc *BitCask) Del(key []byte) error {
 	bc.rwLock.Lock()
 	defer bc.rwLock.Unlock()
@@ -184,11 +189,11 @@ func (bc *BitCask) readableFiles() ([]*os.File, error) {
 }
 
 func (bc *BitCask) getFileState(fileID uint32) (*BFile, error) {
-	// lock up it from write able file
+	// lock up it from writeable file
 	if fileID == bc.writeFile.fileID {
 		return bc.writeFile, nil
 	}
-	// if not exits in write able file, look up it from OldFile
+	// if not exits in writeable file, look up it from OldFile
 	bf := bc.oldFile.get(fileID)
 	if bf != nil {
 		return bf, nil
@@ -203,7 +208,6 @@ func (bc *BitCask) getFileState(fileID uint32) (*BFile, error) {
 }
 
 func (bc *BitCask) parseHint(hintFps []*os.File) {
-
 	b := make([]byte, HintHeaderSize, HintHeaderSize)
 	for _, fp := range hintFps {
 		offset := int64(0)
@@ -258,4 +262,19 @@ func (bc *BitCask) parseHint(hintFps []*os.File) {
 			keyDirs.put(key, e)
 		}
 	}
+}
+
+func (bc *Bitcask) fold(f func(key []byte) error) (err error) {
+    bc.rwLock.Lock()
+	defer bc.rwLock.Unlock()
+
+	bc.keyDirs.ForEach(func(node ) bool{
+		if err = f(node.Key()); err != nil {
+			return false
+		}
+
+		return true
+	})
+	
+	return
 }

@@ -5,16 +5,17 @@ import (
 	"strconv"
 	"sync"
 	"time"
+	"hash/crc32"
 )
 
 const (
-	// HeaderSize : 4 + 4 + 4 + 4
+	// HeaderSize : 
 	/**
 	crc32:tStamp:ksz:valueSz:key:value
 	4:4:4:4:xxxx:xxxx
 	**/
 	HeaderSize = 16
-	// HintHeaderSize : 4 + 4 + 4 + 8 = 20 byte
+	// HintHeaderSize : 
 	/**
 	tstamp:ksz:valuesz:valuePos:key
 	4:4:4:8:xxxx
