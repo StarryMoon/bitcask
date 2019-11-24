@@ -20,7 +20,7 @@ type Options struct {
 	ValueMaxSize    uint64
 }
 
-// NewOptions ...
+// NewOptions
 func NewOptions(expirySecs int, maxFileSize uint64, openTimeoutSecs, mergeSecs int, readWrite bool) Options {
 	if expirySecs < 0 {
 		expirySecs = defaultExpirySecs
