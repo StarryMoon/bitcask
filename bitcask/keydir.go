@@ -16,13 +16,13 @@ type KeyDirs struct {
 	entrys map[string]*entry
 }
 
-// NewKeyDir return a hashtable obj
+// NewKeyDir returns a hashtable object
 func NewKeyDir(dirName string) *KeyDirs {
 	//filepath.Abs(fp.Name())
 	keyDirsLock.Lock()
 	defer keyDirsLock.Unlock()
 
-        // there is only one hashtable in memory.
+    // there is only one hashtable in memory.
 	keyDirsOnce.Do(func() {
 		if keyDirs == nil {
 			keyDirs = &KeyDirs{
@@ -45,7 +45,7 @@ func (keyDirs *KeyDirs) del(key string) {
 	delete(keyDirs.entrys, key)
 }
 
-// put a key with value into bitcask
+// put a pair of key/value into bitcask
 func (keyDirs *KeyDirs) put(key string, e *entry) {
 	keyDirsLock.Lock()
 	defer keyDirsLock.Unlock()

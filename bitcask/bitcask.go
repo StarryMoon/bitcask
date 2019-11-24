@@ -265,12 +265,12 @@ func (bc *BitCask) parseHint(hintFps []*os.File) {
 	}
 }
 
-func (bc *Bitcask) fold(f func(key []byte) error) (err error) {
+func (bc *Bitcask) Fold(f func(key []byte) error) (err error) {
     bc.rwLock.Lock()
 	defer bc.rwLock.Unlock()
 
-	bc.keyDirs.ForEach(func(node ) bool{
-		if err = f(node.Key()); err != nil {
+	for k, v := range bc.keyDirs {
+		if err = f(k); err != nil {
 			return false
 		}
 
@@ -278,4 +278,9 @@ func (bc *Bitcask) fold(f func(key []byte) error) (err error) {
 	})
 	
 	return
+}
+
+
+func (bc *Bitcask )Merge() error {
+    
 }
