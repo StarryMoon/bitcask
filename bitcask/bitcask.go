@@ -280,7 +280,17 @@ func (bc *Bitcask) Fold(f func(key []byte) error) (err error) {
 	return
 }
 
+/*
+func (bc *Bitcask) Merge() error {
+	temp, err := ioutil.TempDir(bc.dirFile, "merge")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(temp)
 
-func (bc *Bitcask )Merge() error {
-    
+	mBitcask, err := Open()
+	if err != nil {
+		return err
+	}
 }
+*/
