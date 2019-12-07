@@ -72,7 +72,7 @@ void thread_fun(MessageQueue *arguments) {
 
 int main()
 {
-//test multi-thread 
+//  test multi-thread 
 /*	const int threadCount= 1;
 	std::thread p[threadCount];
 
