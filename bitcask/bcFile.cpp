@@ -113,16 +113,6 @@
 	    auto keySize = std::to_string(key.size());
 	    auto valueSize = std::to_string(value.size());
 	    //auto hashKey = BKDRHash(key.c_str());
-<<<<<<< HEAD
-		
-//        uint64_t offset = bf->file_offset;
-//		bf->file_offset = 0;
-//	    std::cout<<"offset : "<<offset<<std::endl;
-
-//        std::cout<<"fp : "<<bf->fp<<std::endl;
-//		bf->fp = 4;
-=======
->>>>>>> master
 
         // HeaderSize = 16
 	    auto valueOffset = bf->file_offset + HeaderSize + strtoull(keySize.c_str(), NULL, 10);
@@ -136,12 +126,6 @@
 		//char *ch = "ch";
 		char ch[1000];
 		EncodeData(ch, strtoul(crc32, NULL, 10), strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), key, value); 
-<<<<<<< HEAD
-//		std::cout<<"strData : "<<strData<<std::endl;
-//		bf->fp = 4;
-=======
-
->>>>>>> master
 		std::cout<<"fp : "<<bf->fp<<std::endl;
 		//write(bf->fp, ch, std::to_string(ch).size());
 //		strData = crc32 + strData;
@@ -151,11 +135,6 @@
         //bf->hintFp << strHint;
 		char chHint[1000];
 		EncodeHint(chHint, strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), valueOffset, key);
-<<<<<<< HEAD
-        //bf->hintFp << chHint;
-//		bf->hintFp = 5;
-=======
->>>>>>> master
 		
 		write(bf->hintFp, chHint, sizeof(chHint));
 		std::cout<<"hintFp : "<<bf->hintFp<<std::endl;

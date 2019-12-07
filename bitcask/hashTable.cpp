@@ -2,11 +2,8 @@
 
 #include "hashTable.h"
 #include <string>
-<<<<<<< HEAD
-=======
 #include <iostream>
 #include "entry.h"
->>>>>>> master
 
 /*
 HashTable::HashTable(int tableSize){
@@ -22,14 +19,10 @@ HashTable::HashTable() {
 HashTable::~HashTable(){
 
     for(int i=0; i<SIZE; i++) {
-<<<<<<< HEAD
-            if(table[i]) delete table[i];
-=======
         if(table[i]) {
 //			delete table[i]->entry;
 			delete table[i];
 		}
->>>>>>> master
 	}
 
     delete[] table;
@@ -38,18 +31,6 @@ HashTable::~HashTable(){
 }
 
 void HashTable::set(std::string key, Entry *val){
-<<<<<<< HEAD
-	pthread_rwlock_wrlock(&rwlock);
-    int idx = stoi(key, NULL, 10) % SIZE;
-    if(table[idx]) delete table[idx];
-	struct HashItem it;
-	it.key = key;
-	it.entry->setFileId(val->getFileId());
-	it.entry->setFileOffset(val->getFileOffset());
-	it.entry->setValueSize(val->getValueSize());
-	it.entry->setTstamp(val->getTstamp());
-    table[idx] = &it;
-=======
 	std::cout<<"hashtable set()"<<std::endl;
 	pthread_rwlock_wrlock(&rwlock);
     int idx = stoi(key, NULL, 10) % SIZE;
@@ -90,7 +71,6 @@ void HashTable::set(std::string key, Entry *val){
 //  std::shared_ptr<HashItem> ppp(table[idx]);
 //	std::swap(tmp, ppp);   
 std::cout<<"hashtable set() endddding..."<<std::endl;   
->>>>>>> master
 	pthread_rwlock_unlock(&rwlock); 
 }
     
