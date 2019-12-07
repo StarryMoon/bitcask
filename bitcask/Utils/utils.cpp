@@ -53,7 +53,6 @@ std::string getRandStr(int length) {
 
 char* getCrc32(const char* InStr, int len) {
   
-    std::cout<<"crc32"<<std::endl;
     unsigned int Crc32Table[256];    
     int i,j;      
     unsigned int Crc;      

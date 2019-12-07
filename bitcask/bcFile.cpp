@@ -128,7 +128,12 @@
 		std::cout<<"fp : "<<bf->fp<<std::endl;
 		//write(bf->fp, ch, std::to_string(ch).size());
         //strData = crc32 + strData;
+		
 		write(bf->fp, ch, sizeof(ch));
+		/*
+		* Task *pTask = new Task(bf->fp, bf.file_offset, ch);
+          cq->PushTask(pTask);
+		*/
 
 		//std::string strHint = timestamp + keySize + valueSize + std::to_string(valueOffset) + key;
         //bf->hintFp << strHint;

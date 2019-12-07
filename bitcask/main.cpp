@@ -4,8 +4,12 @@
 #include "Utils/utils.h"
 #include <thread>
 #include <unistd.h>
+#include <sys/types.h>    
+#include <sys/stat.h>    
+#include <fcntl.h>
 #include <vector>
 #include "messageQ.h"
+#include <string>
 
 void TestPut() {
 	std::cout<<"TestPut()"<<std::endl;
@@ -39,16 +43,26 @@ void TestPut() {
 }
 
 void thread_fun(MessageQueue *arguments) {
+	uint64_t data_size = 0;
+	std::string data_block;
+	int fd;
     while(true) {
         PTask data = arguments->PopTask();
-
+        
         if (data != NULL) {
-        //    printf( "Thread is: %d\n", std::this_thread::get_id() );
-        //    printf("   %d\n", data->data );
-            if ( 0 == data->data) //Thread end.
-                break;
-            else
-                delete data;
+            std::cout<<"Thread is: "<<std::this_thread::get_id()<<std::endl;
+			if (data_size==0) {
+                fd = data->fd;
+			}
+            
+			//data->fd, data->offset, data->ch
+			if (data_size < 1000000 && fd == data->fd) {
+                data_block += data->content;
+				data_size += sizeof(data->content);
+			} else {
+			    write(data->fd, data_block.c_str(), sizeof(data_block));
+				data_size = 0;
+			}
         }
     }
 
@@ -75,7 +89,7 @@ int main()
 */
 
 /*  test messagequeue
-    MessageQueue cq;
+    MessageQueue *cq = new MessageQueue();
 
     #define THREAD_NUM 3
     std::thread threads[THREAD_NUM];
@@ -87,7 +101,7 @@ int main()
     while( i > 0 )
     {
         Task *pTask = new Task( --i );
-        cq.PushTask( pTask );
+        cq->PushTask( pTask );
     }
 
     for ( int i=0; i<THREAD_NUM; ++i) 

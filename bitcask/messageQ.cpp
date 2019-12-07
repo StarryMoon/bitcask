@@ -4,7 +4,7 @@
 #include "messageQ.h"
 
     MessageQueue::MessageQueue(){}
-    
+
     MessageQueue::~MessageQueue() {
         if (!m_queue.empty()) {
             PTask pRtn = m_queue.front();
@@ -27,7 +27,7 @@
 
         if (!m_queue.empty()) {
             pRtn = m_queue.front();
-            if (pRtn->data != 0) {
+            if (pRtn->content != NULL) {
                 m_queue.pop();
             }
         }

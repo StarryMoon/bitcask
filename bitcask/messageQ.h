@@ -9,12 +9,19 @@
 #include <condition_variable>
 
 typedef struct task_tag {
-    int data;
-    task_tag(int i) : data(i) { }
+//    int data;
+    int fd;
+    uint64_t offset;
+    char *content;
+    task_tag(int fp, uint64_t off, char *ch) {
+        fd = fp;
+        offset = off;
+        *content = *ch; 
+    }
 } Task, *PTask;
 
 class MessageQueue {
-    
+
 public:
     MessageQueue();
     ~MessageQueue();
