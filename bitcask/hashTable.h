@@ -28,7 +28,6 @@ class HashTable
 		void del(std::string key);
 		bool setCompare(std::string key, Entry *e);
         
-
     private:
         static const int SIZE = 1024*1024*1024;
         HashItem ** table;                 // table[i] = HashItem();
