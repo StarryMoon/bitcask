@@ -45,7 +45,7 @@ public:
 	int getLocker();
 
 	std::string get(std::string key);
-	void put(const std::string& key, const std::string& value);
+	void put(const std::string& key, const std::string& value, MessageQueue *cq);
 	void del(std::string key);
 
     void fold(void (*f)(const std::string& key));
@@ -64,14 +64,15 @@ private:
     const std::string lockFileName = "bitcask.lock";    // path of lock
 	const uint64_t LogSize = 10*1024*1024;      // 10M
 	const std::string testPath = "bitcaskTest"; // xxxxx.data  xxxxx.hint
-    BcFiles *bcf;         // readonly files
-	BcFile *activeFile;   // data/hint file
-	std::string dirName;  // test dir
-	int locker;                  // dir lock
+    BcFiles *bcf;               // readonly files
+	BcFile *activeFile;         // data/hint file
+	std::string dirName;        // test dir
+	int locker;                 // dir lock
 	pthread_rwlock_t rwlock;    // read-write lock
 
     // map: insert --> return directly/not overlap
 	// [key] = value  --> overlap
+<<<<<<< HEAD
 <<<<<<< HEAD
 	std::map<std::string, Entry*> hashTable;   
 	
@@ -82,4 +83,12 @@ private:
 
 >>>>>>> master
 	// vector   key->file_info   duplicate items exist
+=======
+    // std::map<std::string, Entry*> hashTable;
+	// vector   key->file_info   duplicate items exist   
+	
+	HashTable *hashTable;
+
+	
+>>>>>>> master
 };
