@@ -11,13 +11,17 @@ void TestPut() {
 	static Bitcask bc;
 
 	const int circleTimes = 10;
+<<<<<<< HEAD
 //	uint64_t offseet = bc.getActiveFile()->file_offset;
 //	std::cout<<"offseet "<<offseet<<std::endl;
+=======
+>>>>>>> master
     std::vector<int> keyVector;
 	int overwriteRatio = 50;
 	for (int i=0; i< circleTimes; i++) {
         keyVector.push_back(getRandomIntRatio(i, overwriteRatio));
 	}
+<<<<<<< HEAD
 	random_shuffle(keyVector.begin(), keyVector.end());
 
 //	for (int i=0; i<keyVector.size(); i++) {
@@ -38,6 +42,21 @@ void TestPut() {
 		bc.put(std::to_string(key), value);
 	}
 //	bc.merge();
+=======
+
+	random_shuffle(keyVector.begin(), keyVector.end());
+
+	for (int i = 0; i < circleTimes; i++) {
+
+		std::cout<<"i: "<<i<<std::endl;
+		//auto key = getRandStr(8);
+		//auto key = getRandomInt();
+		auto key = keyVector[i];
+		auto value = getRandStr(128);
+		bc.put(std::to_string(key), value);
+	}
+	bc.merge();
+>>>>>>> master
 //  sleep(1);
 //  usleep(100000);
 	return;
