@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "messageQ.h"
 
     BcFiles::BcFiles() {
 		pthread_rwlock_init(&rwlock, NULL);
@@ -102,12 +103,9 @@
 		return s;
 	}
 
-	Entry* BcFiles::writeBcFile(BcFile *bf, const std::string& key, const std::string& value) {
+	Entry* BcFiles::writeBcFile(BcFile *bf, const std::string& key, const std::string& value, MessageQueue *cq) {
 
 		std::cout<<"write bcfile"<<std::endl;
-
-//		bf->fp = 4;
-		std::cout<<"fppp : "<<bf->fp<<std::endl;
 
 		auto timestamp = getCurrentOfSecond();
 	    auto keySize = std::to_string(key.size());
@@ -129,8 +127,13 @@
 
 		std::cout<<"fp : "<<bf->fp<<std::endl;
 		//write(bf->fp, ch, std::to_string(ch).size());
-//		strData = crc32 + strData;
+        //strData = crc32 + strData;
+		
 		write(bf->fp, ch, sizeof(ch));
+		/*
+		* Task *pTask = new Task(bf->fp, bf.file_offset, ch);
+          cq->PushTask(pTask);
+		*/
 
 		//std::string strHint = timestamp + keySize + valueSize + std::to_string(valueOffset) + key;
         //bf->hintFp << strHint;
@@ -144,7 +147,6 @@
 		bf->file_offset = bf->file_offset + HeaderSize + strtoull(keySize.c_str(), NULL, 10) + strtoull(valueSize.c_str(), NULL, 10);
 
         std::cout<<"write bcfile ending..."<<std::endl;
-//        bf->file_id = 0;
 
         return new Entry(bf->file_id, valueOffset, strtoul(valueSize.c_str(), NULL, 10), strtoul(timestamp.c_str(), NULL, 10));
 	}

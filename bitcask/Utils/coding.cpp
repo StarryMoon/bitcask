@@ -24,15 +24,13 @@ void EncodeData(char *buf,
 //  assert(buf);
 
   size_t pos = 0;
- 
-//std::cout<<"encode"<<std::endl;
 
   std::memcpy(buf, &crc32, sizeof(uint32_t));
   pos += sizeof(uint32_t);
- //std::cout<<"encode1"<<std::endl;
+ 
   std::memcpy(buf+pos, &tStamp, sizeof(uint32_t));
   pos += sizeof(uint32_t);
-//std::cout<<"encode2"<<std::endl;
+
   std::memcpy(buf+pos, &key_size, sizeof(uint32_t));
   pos += sizeof(uint32_t);
 

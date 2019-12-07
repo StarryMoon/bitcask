@@ -11,8 +11,7 @@
 #include "dirent.h"
 #include <cstddef>
 #include <stdlib.h>
-
-
+#include "messageQ.h"
 
 Bitcask::Bitcask(){
 
@@ -108,8 +107,8 @@ std::string Bitcask::get(std::string key) {
 	return value;
 }
 
-void Bitcask::put(const std::string& key, const std::string& value) {
-   pthread_rwlock_wrlock(&rwlock);
+void Bitcask::put(const std::string& key, const std::string& value, MessageQueue *cq) {
+    pthread_rwlock_wrlock(&rwlock);
 	//auto timestamp = getCurrentOfFormat("%F %T");
 	//auto keySize = std::to_string(key.size());
 	//auto valueSize = std::to_string(value.size());
@@ -118,9 +117,9 @@ void Bitcask::put(const std::string& key, const std::string& value) {
 
 	checkActiveFile(this);
 
-	Entry *e = this->getBCF()->writeBcFile(this->getActiveFile(), key, value);
+//    MessageQueue *cq;
+	Entry *e = this->getBCF()->writeBcFile(this->getActiveFile(), key, value, cq);
 	
-	std::cout<<"write......."<<std::endl;
     // hashtable[key] = value
 	// this->hashTable.insert(std::pair<std::string, Entry*>(key, e));
 	//this->hashTable[key] = e;
@@ -161,17 +160,11 @@ void Bitcask::fold(void (*f)(const std::string& key)) {
 
 void Bitcask::merge() {
 	// temporary merged dir
-//	int tmpFd;
-     std::cout<<"merge"<<std::endl;
+    std::cout<<"merge"<<std::endl;
     char tmpfile[] = "temp-merge";
 	std::string command = "mkdir -p " + this->getTestPath() + "/" + tmpfile;
 	system(command.c_str());
 
-/*    if((tmpFd = mkstemp(tmpfile))< 0)
-    {
-        throw std::runtime_error("temp merge dir error.");
-    }
-*/
 	// path = testPath + std::string(tmpfile)
 	// BcFiles *bcf;         readonly files
 	// BcFile *activeFile;   data/hint file
@@ -263,9 +256,12 @@ void Bitcask::merge() {
                 bf->hintFp = m_fd_hint;
             }
 
-			Entry *entry = bcf->writeBcFile(bf, key, value);
+            MessageQueue *cq = new MessageQueue();
+			Entry *entry = bcf->writeBcFile(bf, key, value, cq);
+
 			this->hashTable->set(key, entry);
 			delete(bf_);
+            delete(cq);
 	    }
 
 /*
@@ -336,7 +332,6 @@ void Bitcask::merge() {
 	this->setActiveFile(bf);
 	this->setDirName(path);
 
-//   close(tmpFd);
 	close(fd);
 	close(fd_hint);
 	delete(bf);
