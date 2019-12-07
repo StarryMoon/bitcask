@@ -264,6 +264,7 @@ void Bitcask::merge() {
 
 			Entry *entry = bcf->writeBcFile(bf, key, value);
 			this->hashTable->set(key, entry);
+			delete(bf_);
 	    }
 
 /*
