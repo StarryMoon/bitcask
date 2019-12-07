@@ -200,7 +200,6 @@ void Bitcask::merge() {
    
 	bf->file_offset = 0;
 
-/*
     std::vector<std::string>* existHintFiles = scanHintFiles();
 	std::vector<std::pair<std::string, Entry*>> eArray;
     scanEntry(eArray, existHintFiles);
@@ -209,26 +208,32 @@ void Bitcask::merge() {
 		std::string key = iter->first;
 		Entry *e_hint = iter->second;
 		pthread_rwlock_rdlock(&rwlock);
-		Entry *e_hashtable = this->hashTable.at(key);
-		if (e == NULL) {
+		Entry *e_hashtable = this->hashTable->get(key);
+		if (e_hashtable == NULL) {
 			pthread_rwlock_unlock(&rwlock);
 			return;
 		}
 		pthread_rwlock_unlock(&rwlock);
  
-		if (!e_hint.isEqual(e_hashtable)) {
+		if (!e_hint->isEqual(e_hashtable)) {
 			continue;
 		}else {
 			pthread_rwlock_wrlock(&rwlock);
-			Entry *e_hashtable_again = this->hashTable.at(key);
-			if (e == NULL) {
+			Entry *e_hashtable_again = this->hashTable->get(key);
+			if (e_hashtable_again == NULL) {
 				pthread_rwlock_unlock(&rwlock);
 				return;
 			}
 
-			if (!e_hint.isEqual(e_hashtable_again)) {
+			if (!e_hint->isEqual(e_hashtable_again)) {
 				continue;
 			}
+
+			uint32_t file_id_ = e_hint->getFileId();
+	        uint64_t file_offset_ = e_hint->getFileOffset();
+            uint32_t value_size_ = e_hint->getValueSize();
+            uint32_t tstamp_ = e_hint->getTstamp();
+		    BcFile *bf_ = this->getFileState(file_id_);
 
             std::string value = this->getBCF()->readBcFile(bf_, this->getDirName(), file_offset_, value_size_);
 			auto offset = bf->file_offset;
@@ -259,10 +264,10 @@ void Bitcask::merge() {
             }
 
 			Entry *entry = bcf->writeBcFile(bf, key, value);
-			this->hashTable[key] = entry;
-	}
-*/
+			this->hashTable->set(key, entry);
+	    }
 
+/*
     pthread_rwlock_wrlock(&rwlock);
 //    std::map<std::string, Entry*>::iterator iter;
 //    for(iter = this->hashTable.begin(); iter != this->hashTable.end(); iter++) {
@@ -318,7 +323,8 @@ void Bitcask::merge() {
 	    //this->hashTable[key] = entry;
 		this->hashTable->set(key, entry);
     }
-
+*/
+	}
     //rm ./* file
 
 	//mv ./temp/*

@@ -156,7 +156,7 @@ std::vector<std::string>* scanHintFiles() {
     struct dirent *ptr;    
     DIR *dir;
     std::string PATH = "./bitcaskTest";
-    dir = opendir(PATH.c_str()); 
+    dir = opendir(PATH.c_str());
     std::vector<std::string> files;
 
     while((ptr=readdir(dir))!=NULL) {
