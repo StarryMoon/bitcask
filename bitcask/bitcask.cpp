@@ -32,7 +32,8 @@ Bitcask::Bitcask(){
 	
     this->setDirName(testPath);
 
-	// init this->hashTable; ???
+	// init hashTable;
+	this->hashTable = new HashTable();
 
     // scan hint file
     std::vector<std::string>* existHintFiles = scanHintFiles();
@@ -76,13 +77,14 @@ Bitcask::~Bitcask() {
 	close(this->getActiveFile_hintFp());
     close(this->getLocker());
 	delete(this->activeFile);
-	std::cout<<"end..."<<std::endl;
+	delete(hashTable);
 	pthread_rwlock_destroy(&rwlock);  
 }
 
 std::string Bitcask::get(std::string key) {
 	pthread_rwlock_rdlock(&rwlock);
-    Entry *e = this->hashTable.at(key);
+    //Entry *e = this->hashTable.at(key);
+	Entry *e = this->hashTable->get(key);
 	if (e == NULL) {
         pthread_rwlock_unlock(&rwlock);
 		return "";
@@ -114,18 +116,15 @@ void Bitcask::put(const std::string& key, const std::string& value) {
 	//auto hashKey = BKDRHash(key.c_str());
 	std::cout<<"put"<<std::endl;
 
-//	uint64_t off = this->getActiveFile_offset();
-//	std::cout<<"off "<<off<<std::endl;
-
 	checkActiveFile(this);
-	std::cout<<"entry"<<std::endl;
 
 	Entry *e = this->getBCF()->writeBcFile(this->getActiveFile(), key, value);
 	
 	std::cout<<"write......."<<std::endl;
     // hashtable[key] = value
 	// this->hashTable.insert(std::pair<std::string, Entry*>(key, e));
-	this->hashTable[key] = e;
+	//this->hashTable[key] = e;
+	this->hashTable->set(key, e);
 	
 	//while (writeFlag.test_and_set());
 	//writeFlag.clear(); 
@@ -137,7 +136,8 @@ void Bitcask::put(const std::string& key, const std::string& value) {
 void Bitcask::del(std::string key) {
 
 	pthread_rwlock_wrlock(&rwlock);
-	Entry *e = this->hashTable.at(key);
+	//Entry *e = this->hashTable.at(key);
+	Entry *e = this->hashTable->get(key);
 	if (e == NULL) {
         pthread_rwlock_unlock(&rwlock);
         std::cout<<"not exists"<<std::endl;
@@ -147,7 +147,8 @@ void Bitcask::del(std::string key) {
     checkActiveFile(this);
     this->getBCF()->delBcFile(this->getActiveFile(), key);
 
-	this->hashTable.erase(key);
+	//this->hashTable.erase(key);
+	this->hashTable->set(key, NULL);
     pthread_rwlock_unlock(&rwlock); 
 }
 
@@ -198,9 +199,6 @@ void Bitcask::merge() {
     bf->hintFp = fd_hint;
    
 	bf->file_offset = 0;
- //std::cout<<"merge off"<<std::endl;
-	
- //std::cout<<"merge lock"<<std::endl;
 
 /*
     std::vector<std::string>* existHintFiles = scanHintFiles();
@@ -266,11 +264,15 @@ void Bitcask::merge() {
 */
 
     pthread_rwlock_wrlock(&rwlock);
-    std::map<std::string, Entry*>::iterator iter;
-    for(iter = this->hashTable.begin(); iter != this->hashTable.end(); iter++) {
+//    std::map<std::string, Entry*>::iterator iter;
+//    for(iter = this->hashTable.begin(); iter != this->hashTable.end(); iter++) {
 		// read
-	    std::string key = iter->first;
-	    Entry *e = iter->second;
+//	    std::string key = iter->first;
+//	    Entry *e = iter->second;
+    for(int i=0; i<1000; i++) {
+		std::string key = std::to_string(i);
+		Entry *e = hashTable->get(key);
+
 	    uint32_t file_id_ = e->getFileId();
 	    uint64_t file_offset_ = e->getFileOffset();
         uint32_t value_size_ = e->getValueSize();
@@ -281,9 +283,9 @@ void Bitcask::merge() {
             std::cout<<"not exists."<<std::endl;
 		    return;
 		}
-		std::cout<<"read..."<<std::endl;
+
         std::string value = this->getBCF()->readBcFile(bf_, this->getDirName(), file_offset_, value_size_);
-		std::cout<<"val : "<<value<<std::endl;
+
 		// write
         auto offset = bf->file_offset;
         auto logSize = this->getLogSize();
@@ -313,7 +315,8 @@ void Bitcask::merge() {
         }
 
 	    Entry *entry = bcf->writeBcFile(bf, key, value);
-	    this->hashTable[key] = entry;
+	    //this->hashTable[key] = entry;
+		this->hashTable->set(key, entry);
     }
 
     //rm ./* file
@@ -437,7 +440,6 @@ void Bitcask::parseHintFiles(std::vector<std::string>* existHintFiles) {
 			//parse key
 			char *keyByte;
 			file.read(keyByte, *ksz);
-			//key = std::to_string(keyByte);
 
 			// construct entry
 			Entry *e;
@@ -447,7 +449,8 @@ void Bitcask::parseHintFiles(std::vector<std::string>* existHintFiles) {
 			e->setTstamp(*tStamp);
 
 			//insert hashtable
-			this->hashTable[keyByte] = e;
+			//this->hashTable[keyByte] = e;
+			this->hashTable->set(keyByte, e);
 		}
 		file.close();
 	}

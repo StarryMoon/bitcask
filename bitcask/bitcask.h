@@ -11,6 +11,7 @@
 #include "entry.h"
 #include "bcFile.h"
 #include "Utils/coding.h"
+#include "hashTable.h"
 
 class Bitcask
 {
@@ -71,7 +72,9 @@ private:
 
     // map: insert --> return directly/not overlap
 	// [key] = value  --> overlap
-	std::map<std::string, Entry*> hashTable;   
+//	std::map<std::string, Entry*> hashTable;   
 	
+	HashTable *hashTable;
+
 	// vector   key->file_info   duplicate items exist
 };
