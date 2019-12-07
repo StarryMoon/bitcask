@@ -29,7 +29,7 @@ func checkWriteableFile(bc *BitCask) {
 			writeOffset: 0,
 			hintFp:      hintFp,
 		}
-		bc.writeFile = bf
+		bc.writeFile = bf            // bc.bfs.put(bf, fileID);
 		// update pid
 		writePID(bc.lockFile, fileID)
 	}
@@ -78,13 +78,13 @@ func listDataFiles(bc *BitCask) ([]string, error) {
 			dataFileLists = append(dataFileLists, v)
 		}
 	}
-	sort.Strings(dataFileLists)
+	sort.Strings(dataFileLists)        // 排序
 	return dataFileLists, nil
 }
 
 // lock a file by fp locker; the file must exits
 func lockFile(fileName string) (*os.File, error) {
-	return os.OpenFile(fileName, os.O_EXCL|os.O_CREATE|os.O_RDWR, os.ModePerm)
+	return os.OpenFile(fileName, os.O_EXCL|os.O_CREATE|os.O_RDWR, os.ModePerm)         //  os.O_EXCL｜os.O_create  此文件不能存在，并创建    原子操作   排他
 }
 
 func existsSuffixs(suffixs []string, src string) (b bool) {

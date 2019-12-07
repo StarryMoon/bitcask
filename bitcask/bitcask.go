@@ -59,7 +59,7 @@ func Open(dirName string, opts *Options) (*BitCask, error) {
 
 	hintFp = setHintFile(fileID, dirName)
 	// close other hint
-	closeReadHintFp(files, fileID)
+	closeReadHintFp(files, fileID)       // 返回的数组全是文件描述符
 	// setting writeable file, only one
 	dataStat, _ := writeFp.Stat()
 	bf := &BFile{
@@ -167,7 +167,7 @@ func (bc *BitCask) Del(key []byte) error {
 // return readable hint file: xxxx.hint
 func (bc *BitCask) readableFiles() ([]*os.File, error) {
 	filterFiles := []string{lockFileName}
-	ldfs, err := listHintFiles(bc)
+	ldfs, err := listHintFiles(bc)     // 名字
 	if err != nil {
 		return nil, err
 	}
@@ -177,11 +177,11 @@ func (bc *BitCask) readableFiles() ([]*os.File, error) {
 		if existsSuffixs(filterFiles, filePath) {
 			continue
 		}
-		fp, err := os.OpenFile(bc.dirFile+"/"+filePath, os.O_RDONLY, 0755)
+		fp, err := os.OpenFile(bc.dirFile+"/"+filePath, os.O_RDONLY, 0755)    // 文件描述符
 		if err != nil {
 			return nil, err
 		}
-		fps = append(fps, fp)
+		fps = append(fps, fp)     // 追加，合并
 	}
 	if len(fps) == 0 {
 		return nil, nil
@@ -204,7 +204,7 @@ func (bc *BitCask) getFileState(fileID uint32) (*BFile, error) {
 	if err != nil {
 		return nil, err
 	}
-	bc.oldFile.put(bf, fileID)
+	bc.oldFile.put(bf, fileID)                  
 	return bf, nil
 }
 

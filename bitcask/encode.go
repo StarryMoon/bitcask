@@ -9,6 +9,9 @@ import (
 // ErrCrc32
 var ErrCrc32 = fmt.Errorf("checksumIEEE error")
 
+
+// 二进制k/v键值对到data file
+
 func encodeEntry(tStamp, keySize, valueSize uint32, key, value []byte) []byte {
 	/**
 	    crc32	:	tStamp	:	ksz	:	valueSz	:	key	:	value
@@ -27,6 +30,8 @@ func encodeEntry(tStamp, keySize, valueSize uint32, key, value []byte) []byte {
 	return buf
 }
 
+
+// 解析value
 // DecodeEntry ...
 func DecodeEntry(buf []byte) ([]byte, error) {
 	/**
@@ -46,6 +51,7 @@ func DecodeEntry(buf []byte) ([]byte, error) {
 	return value, nil
 }
 
+// 解析整个data file 头部
 // DecodeEntryHeader ...
 func DecodeEntryHeader(buf []byte) (uint32, uint32, uint32, uint32) {
 	/**
@@ -60,6 +66,7 @@ func DecodeEntryHeader(buf []byte) (uint32, uint32, uint32, uint32) {
 }
 
 
+// 解析完整data file
 // DecodeEntryDetail ...
 func DecodeEntryDetail(buf []byte) (uint32, uint32, uint32, uint32, []byte, []byte, error) {
 	/**
@@ -86,6 +93,7 @@ func DecodeEntryDetail(buf []byte) (uint32, uint32, uint32, uint32, []byte, []by
 	return c32, tStamp, ksz, valuesz, key, value, nil
 }
 
+// 二进制 hint
 func encodeHint(tStamp, ksz, valueSz uint32, valuePos uint64, key []byte) []byte {
 	/**
 		    tStamp	:	ksz	:	valueSz	:	valuePos	:	key
@@ -100,6 +108,8 @@ func encodeHint(tStamp, ksz, valueSz uint32, valuePos uint64, key []byte) []byte
 	return buf
 }
 
+
+// 解析完整hint
 // DecodeHint ...
 func DecodeHint(buf []byte) (uint32, uint32, uint32, uint64) {
 	/**

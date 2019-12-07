@@ -5,7 +5,7 @@ import "sync"
 var keyDirsLock *sync.RWMutex
 
 var keyDirs *KeyDirs
-var keyDirsOnce sync.Once
+var keyDirsOnce sync.Once       //  executed once
 
 func init() {
 	keyDirsLock = &sync.RWMutex{}
@@ -67,7 +67,7 @@ func (keyDirs *KeyDirs) setCompare(key string, e *entry) bool {
 	return false
 }
 
-func (keyDirs *KeyDirs) updateFileID(oldID, newID uint32) {
+func (keyDirs *KeyDirs) updateFileID(oldID, newID uint32) {    // merge???
 	keyDirsLock.Lock()
 	defer keyDirsLock.Unlock()
 	for _, e := range keyDirs.entrys {
