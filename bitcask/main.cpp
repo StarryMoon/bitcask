@@ -108,7 +108,7 @@ int main()
         threads[i].join();
 */		
     TestPut();
-    std::cout<<"test ending... "<<std::endl;
+    std::cout<<"test ending..."<<std::endl;
 	return 0;
 }
 
