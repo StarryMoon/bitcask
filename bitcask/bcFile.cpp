@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "messageQ.h"
 
     BcFiles::BcFiles() {
 		pthread_rwlock_init(&rwlock, NULL);
@@ -102,7 +103,7 @@
 		return s;
 	}
 
-	Entry* BcFiles::writeBcFile(BcFile *bf, const std::string& key, const std::string& value) {
+	Entry* BcFiles::writeBcFile(BcFile *bf, const std::string& key, const std::string& value, MessageQueue *cq) {
 
 		std::cout<<"write bcfile"<<std::endl;
 

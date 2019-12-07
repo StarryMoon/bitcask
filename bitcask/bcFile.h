@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "messageQ.h"
 
 struct BcFile {
 	int fp;
@@ -45,7 +46,7 @@ public:
 
 	std::string readBcFile(BcFile *bf, std::string dirName, uint64_t offset, uint32_t len);
 
-	Entry* writeBcFile(BcFile *bf, const std::string& key, const std::string& value);
+	Entry* writeBcFile(BcFile *bf, const std::string& key, const std::string& value, MessageQueue *cq);
 
     // tombstone : valuesize=0
 	void delBcFile(BcFile *bf, const std::string& key);

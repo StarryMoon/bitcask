@@ -5,6 +5,7 @@
 #include <thread>
 #include <unistd.h>
 #include <vector>
+#include "messageQ.h"
 
 void TestPut() {
 	std::cout<<"TestPut()"<<std::endl;
@@ -19,6 +20,7 @@ void TestPut() {
 
 	random_shuffle(keyVector.begin(), keyVector.end());
 
+    MessageQueue *cq = new MessageQueue();
 	for (int i = 0; i < circleTimes; i++) {
 
 		std::cout<<"i: "<<i<<std::endl;
@@ -26,19 +28,37 @@ void TestPut() {
 		//auto key = getRandomInt();
 		auto key = keyVector[i];
 		auto value = getRandStr(128);
-		bc.put(std::to_string(key), value);
+		bc.put(std::to_string(key), value, cq);
 	}
 	bc.merge();
 //  sleep(1);
 //  usleep(100000);
+
+    delete(cq);
 	return;
-	
+}
+
+void thread_fun(MessageQueue *arguments) {
+    while(true) {
+        PTask data = arguments->PopTask();
+
+        if (data != NULL) {
+        //    printf( "Thread is: %d\n", std::this_thread::get_id() );
+        //    printf("   %d\n", data->data );
+            if ( 0 == data->data) //Thread end.
+                break;
+            else
+                delete data;
+        }
+    }
+
+    return;
 }
 
 
 int main()
 {
-	//test multi-thread 
+//test multi-thread 
 /*	const int threadCount= 1;
 	std::thread p[threadCount];
 
@@ -53,6 +73,26 @@ int main()
 		p[i].join();
 	}
 */
+
+/*  test messagequeue
+    MessageQueue cq;
+
+    #define THREAD_NUM 3
+    std::thread threads[THREAD_NUM];
+
+    for ( int i=0; i<THREAD_NUM; ++i )
+        threads[i] = std::thread(thread_fun, &cq );
+
+    int i = 100000;
+    while( i > 0 )
+    {
+        Task *pTask = new Task( --i );
+        cq.PushTask( pTask );
+    }
+
+    for ( int i=0; i<THREAD_NUM; ++i) 
+        threads[i].join();
+*/		
     TestPut();
     std::cout<<"test ending... "<<std::endl;
 	return 0;

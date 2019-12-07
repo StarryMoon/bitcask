@@ -11,8 +11,7 @@
 #include "dirent.h"
 #include <cstddef>
 #include <stdlib.h>
-
-
+#include "messageQ.h"
 
 Bitcask::Bitcask(){
 
@@ -108,7 +107,7 @@ std::string Bitcask::get(std::string key) {
 	return value;
 }
 
-void Bitcask::put(const std::string& key, const std::string& value) {
+void Bitcask::put(const std::string& key, const std::string& value, MessageQueue *cq) {
     pthread_rwlock_wrlock(&rwlock);
 	//auto timestamp = getCurrentOfFormat("%F %T");
 	//auto keySize = std::to_string(key.size());
@@ -118,7 +117,8 @@ void Bitcask::put(const std::string& key, const std::string& value) {
 
 	checkActiveFile(this);
 
-	Entry *e = this->getBCF()->writeBcFile(this->getActiveFile(), key, value);
+//    MessageQueue *cq;
+	Entry *e = this->getBCF()->writeBcFile(this->getActiveFile(), key, value, cq);
 	
     // hashtable[key] = value
 	// this->hashTable.insert(std::pair<std::string, Entry*>(key, e));
@@ -256,9 +256,12 @@ void Bitcask::merge() {
                 bf->hintFp = m_fd_hint;
             }
 
-			Entry *entry = bcf->writeBcFile(bf, key, value);
+            MessageQueue *cq = new MessageQueue();
+			Entry *entry = bcf->writeBcFile(bf, key, value, cq);
+
 			this->hashTable->set(key, entry);
 			delete(bf_);
+            delete(cq);
 	    }
 
 /*
