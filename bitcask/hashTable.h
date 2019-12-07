@@ -3,9 +3,8 @@
 //#pragma comment(linker,"/SECTION:.rdata,RW") 
 
 //hashtable
-
-//#include <array>
 //#include <map>  // deduplicate
+
 #include <string>
 #include "entry.h"
 #include <pthread.h>

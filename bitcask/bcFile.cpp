@@ -106,9 +106,6 @@
 
 		std::cout<<"write bcfile"<<std::endl;
 
-//		bf->fp = 4;
-		std::cout<<"fppp : "<<bf->fp<<std::endl;
-
 		auto timestamp = getCurrentOfSecond();
 	    auto keySize = std::to_string(key.size());
 	    auto valueSize = std::to_string(value.size());
@@ -129,7 +126,7 @@
 
 		std::cout<<"fp : "<<bf->fp<<std::endl;
 		//write(bf->fp, ch, std::to_string(ch).size());
-//		strData = crc32 + strData;
+        //strData = crc32 + strData;
 		write(bf->fp, ch, sizeof(ch));
 
 		//std::string strHint = timestamp + keySize + valueSize + std::to_string(valueOffset) + key;
@@ -144,7 +141,6 @@
 		bf->file_offset = bf->file_offset + HeaderSize + strtoull(keySize.c_str(), NULL, 10) + strtoull(valueSize.c_str(), NULL, 10);
 
         std::cout<<"write bcfile ending..."<<std::endl;
-//        bf->file_id = 0;
 
         return new Entry(bf->file_id, valueOffset, strtoul(valueSize.c_str(), NULL, 10), strtoul(timestamp.c_str(), NULL, 10));
 	}

@@ -20,11 +20,9 @@
 #include <unistd.h>
 
 struct BcFile {
-	//std::ofstream fp;           // write
 	int fp;
 	uint32_t file_id;
 	uint64_t file_offset;
-	//std::ofstream hintFp;      // write
 	int hintFp;
 };
 

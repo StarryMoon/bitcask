@@ -109,7 +109,7 @@ std::string Bitcask::get(std::string key) {
 }
 
 void Bitcask::put(const std::string& key, const std::string& value) {
-   pthread_rwlock_wrlock(&rwlock);
+    pthread_rwlock_wrlock(&rwlock);
 	//auto timestamp = getCurrentOfFormat("%F %T");
 	//auto keySize = std::to_string(key.size());
 	//auto valueSize = std::to_string(value.size());
@@ -120,7 +120,6 @@ void Bitcask::put(const std::string& key, const std::string& value) {
 
 	Entry *e = this->getBCF()->writeBcFile(this->getActiveFile(), key, value);
 	
-	std::cout<<"write......."<<std::endl;
     // hashtable[key] = value
 	// this->hashTable.insert(std::pair<std::string, Entry*>(key, e));
 	//this->hashTable[key] = e;
@@ -161,17 +160,11 @@ void Bitcask::fold(void (*f)(const std::string& key)) {
 
 void Bitcask::merge() {
 	// temporary merged dir
-//	int tmpFd;
-     std::cout<<"merge"<<std::endl;
+    std::cout<<"merge"<<std::endl;
     char tmpfile[] = "temp-merge";
 	std::string command = "mkdir -p " + this->getTestPath() + "/" + tmpfile;
 	system(command.c_str());
 
-/*    if((tmpFd = mkstemp(tmpfile))< 0)
-    {
-        throw std::runtime_error("temp merge dir error.");
-    }
-*/
 	// path = testPath + std::string(tmpfile)
 	// BcFiles *bcf;         readonly files
 	// BcFile *activeFile;   data/hint file
@@ -336,7 +329,6 @@ void Bitcask::merge() {
 	this->setActiveFile(bf);
 	this->setDirName(path);
 
-//   close(tmpFd);
 	close(fd);
 	close(fd_hint);
 	delete(bf);

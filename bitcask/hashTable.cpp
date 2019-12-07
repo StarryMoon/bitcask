@@ -5,11 +5,6 @@
 #include <iostream>
 #include "entry.h"
 
-/*
-HashTable::HashTable(int tableSize){
-	table = new size_t[tableSize]();
-}
-*/
 
 HashTable::HashTable() {
     table  = new HashItem*[SIZE]();
@@ -20,7 +15,6 @@ HashTable::~HashTable(){
 
     for(int i=0; i<SIZE; i++) {
         if(table[i]) {
-//			delete table[i]->entry;
 			delete table[i];
 		}
 	}
@@ -60,17 +54,12 @@ void HashTable::set(std::string key, Entry *val){
 	it->key = key;
 	it->entry = new Entry(val->getFileId(), val->getFileOffset(), val->getValueSize(), val->getTstamp());
     table[idx] = it;
-    std::cout<<"hashtable set() ending..."<<std::endl;
-//    if (table[idx] != NULL) {
-//		*(table[idx]) = it;
-//        table[idx] = it;
-//	}
-//     table[idx] = &it;  
+    std::cout<<"hashtable set() ending..."<<std::endl;  
 
 //  std::shared_ptr<HashItem> tmp(it);
 //  std::shared_ptr<HashItem> ppp(table[idx]);
 //	std::swap(tmp, ppp);   
-std::cout<<"hashtable set() endddding..."<<std::endl;   
+   
 	pthread_rwlock_unlock(&rwlock); 
 }
     
