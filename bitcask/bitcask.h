@@ -11,10 +11,7 @@
 #include "entry.h"
 #include "bcFile.h"
 #include "Utils/coding.h"
-<<<<<<< HEAD
-=======
 #include "hashTable.h"
->>>>>>> master
 
 class Bitcask
 {
