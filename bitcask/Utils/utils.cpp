@@ -34,16 +34,6 @@ int getRandomIntRatio(int count, int overwriteRatio) {
     } else {
         return count;
     }
-
-
-/*    std::vector<int> tmp;
-    int size = circleTimes / base;
-    for (int i=0; i<size; i++) {
-        tmp.push_back(i+1);
-    }
-    
-    random_shuffle(tmp.begin(), tmp.end());
-*/
 }
 
 std::string getRandStr(int length) {
@@ -63,36 +53,37 @@ std::string getRandStr(int length) {
 
 char* getCrc32(const char* InStr, int len) {
   
-  std::cout<<"crc32"<<std::endl;
-  unsigned int Crc32Table[256];    
-  int i,j;      
-  unsigned int Crc;      
-  for (i = 0; i < 256; i++){      
-    Crc = i;      
-    for (j = 0; j < 8; j++){      
-      if (Crc & 1)      
-        Crc = (Crc >> 1) ^ 0xEDB88320;      
-      else     
-        Crc >>= 1;    
+    unsigned int Crc32Table[256];    
+    int i,j;      
+    unsigned int Crc;      
+    for (i = 0; i < 256; i++){      
+        Crc = i;      
+        for (j = 0; j < 8; j++){      
+            if (Crc & 1) {    
+                Crc = (Crc >> 1) ^ 0xEDB88320; 
+            } else {   
+                Crc >>= 1;
+            }   
+        }      
+        Crc32Table[i] = Crc;      
     }      
-    Crc32Table[i] = Crc;      
-  }      
      
-  Crc=0xffffffff;      
-  for(int i=0; i<len; i++){        
-    Crc = (Crc >> 8) ^ Crc32Table[(Crc & 0xFF) ^ InStr[i]];      
-  }   
+    Crc=0xffffffff; 
+
+    for(int i=0; i<len; i++) {        
+        Crc = (Crc >> 8) ^ Crc32Table[(Crc & 0xFF) ^ InStr[i]];      
+    }   
      
-  Crc ^= 0xFFFFFFFF;  
+    Crc ^= 0xFFFFFFFF;  
 
-  char buf[4];
-  buf[0] = Crc >> 24;
-  buf[1] = Crc >> 16;
-  buf[2] = Crc >> 8;
-  buf[3] = Crc;
+    char buf[4];
+    buf[0] = Crc >> 24;
+    buf[1] = Crc >> 16;
+    buf[2] = Crc >> 8;
+    buf[3] = Crc;
 
-  //uint32_t crc32 = strtoul(buf, NULL, 10);
-  return buf;    
+    //uint32_t crc32 = strtoul(buf, NULL, 10);
+    return buf;    
 }
 
 void createWriteableFile(Bitcask *bc) {
@@ -105,8 +96,6 @@ void createWriteableFile(Bitcask *bc) {
     }
     bc->setActiveFile_fp(fd);
     bc->setActiveFile_fileId(strtoul(file_id.c_str(), NULL, 10));  // string -> uint32_t
-
-    //bc->getActiveFile()->fp.open(file_name, std::fstream::app|std::fstream::out);
   
     return;
 }
@@ -121,12 +110,10 @@ void createHintFile(Bitcask *bc) {
 
     bc->setActiveFile_hintFp(fd);
     
-    //bc->getActiveFile()->hintFp.open(file_name, std::fstream::app|std::fstream::out);
     return;
 }
 
 void checkActiveFile(Bitcask *bc) {
-//    bc->getActiveFile()->file_offset = 0;
     uint64_t offset = bc->getActiveFile_offset();
     auto logSize = bc->getLogSize();
     std::cout<<"check"<<std::endl;
@@ -148,7 +135,6 @@ void checkActiveFile(Bitcask *bc) {
         createHintFile(bc);
         bc->setActiveFile_offset(0);   
     }
-
 }
 
 std::vector<std::string>* scanHintFiles() {
