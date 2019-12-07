@@ -28,7 +28,7 @@ void TestPut() {
 		auto value = getRandStr(128);
 		bc.put(std::to_string(key), value);
 	}
-//	bc.merge();
+	bc.merge();
 //  sleep(1);
 //  usleep(100000);
 	return;
