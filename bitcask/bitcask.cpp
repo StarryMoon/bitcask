@@ -150,6 +150,8 @@ void Bitcask::fold(void (*f)(const std::string& key)) {
 }
 
 void Bitcask::merge() {
+    sleep(1);
+//	while(true) {
 	// temporary merged dir
     std::cout<<"merge"<<std::endl;
     char tmpfile[] = "temp-merge";
@@ -264,6 +266,9 @@ void Bitcask::merge() {
 	delete(bf);
 	delete(bcf);
 	pthread_rwlock_unlock(&rwlock); 
+	
+//	sleep(1);
+//	}
 }
 
 uint64_t Bitcask::getLogSize() {

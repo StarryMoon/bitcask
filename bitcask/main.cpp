@@ -14,9 +14,9 @@
 void TestPut() {
 	std::cout<<"TestPut()"<<std::endl;
 	static Bitcask bc;
-	const int circleTimes = 10;
+	const int circleTimes = 1000;
     std::vector<int> keyVector;
-	int overwriteRatio = 50;
+	int overwriteRatio = 50;   // --> 50%
 	for (int i=0; i< circleTimes; i++) {
         keyVector.push_back(getRandomIntRatio(i, overwriteRatio));
 	}
@@ -24,12 +24,16 @@ void TestPut() {
 	random_shuffle(keyVector.begin(), keyVector.end());
 
     MessageQueue *cq = new MessageQueue();
+
+	std::thread gc_thread([](Bitcask bc){
+        bc.merge();
+    }, bc);
+	gc_thread.join();
 	
 	for (int i = 0; i < circleTimes; i++) {
 		std::cout<<"i: "<<i<<std::endl;
 		auto key = keyVector[i];
 		auto value = getRandStr(128);
-		std::cout<<"xxx"<<std::endl;
 		bc.put(std::to_string(key), value, cq);
 	}
 
@@ -46,19 +50,9 @@ void TestMerge(Bitcask bc) {
 int main()
 {
 
- /*   
-	const int threadCount= 1;
-	std::thread p[threadCount];
-	for (int i = 0; i < threadCount; i++) {
-		std::thread a(TestPut);
-		p[i] = std::move(a);
-        p[i] = std::thread(TestPut);
-	}
-*/
-   
 //    static Bitcask bc;
 	
-/*    const int threadCount= 1;
+/*  const int threadCount= 1;
 	std::thread p[threadCount];
 	for (int i = 0; i < threadCount; i++) {
 		std::thread a(TestMerge, bc);
