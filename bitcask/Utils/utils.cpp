@@ -139,16 +139,16 @@ std::vector<std::string>* scanHintFiles() {
     std::cout<<"scanHIntFiles"<<std::endl;
     struct dirent *ptr;    
     DIR *dir;
-    std::string PATH = "./bitcaskTest";
+    std::string PATH = "./bitcaskTest";   // bc.dirName
     dir = opendir(PATH.c_str());
     std::vector<std::string> files;
 
     while((ptr=readdir(dir))!=NULL) {
  
         //skip '.'/'..'
-        if(ptr->d_name[0] == '.')
+        if(ptr->d_name[0] == '.') {
             continue;
-        //cout << ptr->d_name << endl;
+        }
         std::string str = ".hint";
         const char *show;
         show = strstr(std::string(ptr->d_name).c_str(), str.c_str());
@@ -157,16 +157,16 @@ std::vector<std::string>* scanHintFiles() {
         }  
     }
     
-    for (int i = 0; i < files.size(); ++i)
-    {
-        std::cout << files[i] << std::endl;
-    }
+//    for (int i = 0; i < files.size(); ++i)
+//    {
+//        std::cout << files[i] << std::endl;
+//    }
  
     closedir(dir);
 
 	return &files;
  
-  return NULL; 
+ // return NULL; 
 }
 
 std::vector<std::string>* listDataFiles() {
