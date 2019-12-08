@@ -116,13 +116,10 @@ void createHintFile(Bitcask *bc) {
 void checkActiveFile(Bitcask *bc) {
     uint64_t offset = bc->getActiveFile_offset();
     auto logSize = bc->getLogSize();
-    std::cout<<"check"<<std::endl;
     if (offset >= logSize) {
-        std::cout<<"offseeet : "<<offset<<std::endl;
         close(bc->getActiveFile_fp());
         close(bc->getActiveFile_hintFp());
         
-        std::cout<<"put bcfiles"<<std::endl;
         // put
         bc->getBCF()->put_BcFiles(bc->getActiveFile(), bc->getActiveFile_fileId());
 
@@ -136,7 +133,6 @@ void checkActiveFile(Bitcask *bc) {
 }
 
 std::vector<std::string>* scanHintFiles() {
-    std::cout<<"scanHIntFiles"<<std::endl;
     struct dirent *ptr;    
     DIR *dir;
     std::string PATH = "./bitcaskTest";   // bc.dirName

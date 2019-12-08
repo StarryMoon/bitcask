@@ -31,7 +31,6 @@
  
     BcFile* BcFiles::get_BcFiles(uint32_t file_id) {
 		pthread_rwlock_rdlock(&rwlock);
-        std::cout<<"get bcfiles"<<std::endl;
         if(this->bfs.count(file_id) > 0) {
             return this->bfs[file_id];
 		} else {
@@ -56,7 +55,6 @@
         std::map<uint32_t, BcFile*>::iterator iter;
 		iter = bcf.begin();
 		while(iter != bcf.end()) {
-			std::cout<<"close bcfiles..."<<std::endl;
 		    BcFile *bf = iter->second;
             close(bf->fp);
 			close(bf->hintFp);
@@ -103,8 +101,6 @@
 
 	Entry* BcFiles::writeBcFile(BcFile *bf, const std::string& key, const std::string& value) {
 
-		std::cout<<"write bcfile"<<std::endl;
-
 		auto timestamp = getCurrentOfSecond();
 	    auto keySize = std::to_string(key.size());
 	    auto valueSize = std::to_string(value.size());
@@ -112,17 +108,13 @@
 
         // HeaderSize = 16
 	    auto valueOffset = bf->file_offset + HeaderSize + strtoull(keySize.c_str(), NULL, 10);
-		std::cout<<"valueOffset : "<<valueOffset<<std::endl;
 	    std::string strData = timestamp + keySize + valueSize + key + value;
 
-		std::cout<<"cstr : "<<strData.c_str()<<std::endl;
 		char* crc32 = getCrc32(strData.c_str(), strData.size());      // char*
-		std::cout<<"crc32 : "<<crc32<<std::endl;
 
 		//char *ch = "ch";
 		char ch[1000];
 		EncodeData(ch, strtoul(crc32, NULL, 10), strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), key, value); 
-		std::cout<<"fp : "<<bf->fp<<std::endl;
 		//write(bf->fp, ch, std::to_string(ch).size());
         //strData = crc32 + strData;
 		
@@ -134,12 +126,9 @@
 		EncodeHint(chHint, strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), valueOffset, key);
 		
 		write(bf->hintFp, chHint, sizeof(chHint));
-		std::cout<<"hintFp : "<<bf->hintFp<<std::endl;
 
         //HeaderSize =16
 		bf->file_offset = bf->file_offset + HeaderSize + strtoull(keySize.c_str(), NULL, 10) + strtoull(valueSize.c_str(), NULL, 10);
-
-        std::cout<<"write bcfile ending..."<<std::endl;
 
         return new Entry(bf->file_id, valueOffset, strtoul(valueSize.c_str(), NULL, 10), strtoul(timestamp.c_str(), NULL, 10));
 	}

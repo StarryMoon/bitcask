@@ -29,7 +29,6 @@ HashTable::~HashTable(){
 }
 
 void HashTable::set(std::string key, Entry *val){
-	std::cout<<"hashtable set()"<<std::endl;
 	
 	int num = stoi(key, NULL, 10);
     int idx = num % SIZE;
@@ -44,15 +43,12 @@ void HashTable::set(std::string key, Entry *val){
 
 /*	if (table[idx]->key == key) {
         HashItem *item = table[idx];
-		std::cout<<"hasdsssshtablllle set()"<<std::endl;
 		Entry *tmp;
 		tmp = item->entry;
-		std::cout<<"has set()"<<std::endl;
 		uint32_t tStamp = item->entry->getTstamp();
 		if (tStamp > val->getTstamp()) {
     	    return;
 		}
-		std::cout<<"lle set()"<<std::endl;
 	}
 */	
     if(table[idx]) {
@@ -73,7 +69,6 @@ void HashTable::set(std::string key, Entry *val){
 
 	if (idx > sizeof(table)/sizeof(HashItem)) {
 		table = new HashItem*[1024*1024*1024];
-        std::cout<<"idx out of hashtable."<<std::endl;
 		//return;
 	}
 
@@ -81,7 +76,6 @@ void HashTable::set(std::string key, Entry *val){
 	it->key = key;
 	it->entry = new Entry(val->getFileId(), val->getFileOffset(), val->getValueSize(), val->getTstamp());
     table[idx] = it;
-    std::cout<<"hashtable set() ending..."<<std::endl;  
 
     //  std::shared_ptr<HashItem> tmp(it);
     //  std::shared_ptr<HashItem> ppp(table[idx]);

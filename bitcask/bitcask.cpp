@@ -55,8 +55,6 @@ Bitcask::Bitcask(){
     }else {
 		int fd = this->getActiveFile()->fp;
 		int hintFd = this->getActiveFile()->hintFp;
-		std::cout<<"fp : "<<fd<<std::endl;
-		std::cout<<"hintFp : "<<hintFd<<std::endl;
 	}
 	this->setBCF(NULL);
 
@@ -65,17 +63,14 @@ Bitcask::Bitcask(){
 }
 
 Bitcask::~Bitcask() {
-	std::cout<<"~bitcask"<<std::endl;
 	if (this->getBCF() != NULL) {
         this->getBCF()->close_BcFiles();
 	}	
-	std::cout<<"~bitcask ending..."<<std::endl;
 	close(this->getActiveFile_fp());
 	close(this->getActiveFile_hintFp());
     close(this->getLocker());
 //	delete(this->activeFile);
 	this->activeFile = NULL;
-	std::cout<<"~bitcask ending..."<<std::endl;
 //	delete(hashTable);
 	hashTable = NULL;
 	pthread_rwlock_destroy(&rwlock);  
@@ -83,7 +78,6 @@ Bitcask::~Bitcask() {
 
 std::string Bitcask::get(std::string key) {
 	pthread_rwlock_rdlock(&rwlock);
-    std::cout<<"get"<<std::endl;
 	Entry *e = this->hashTable->get(key);
 	if (e == NULL) {
         pthread_rwlock_unlock(&rwlock);
@@ -110,7 +104,6 @@ std::string Bitcask::get(std::string key) {
 
 void Bitcask::put(const std::string& key, const std::string& value) {
     pthread_rwlock_wrlock(&rwlock);
-	std::cout<<"put"<<std::endl;
 
 	checkActiveFile(this);
 
@@ -157,7 +150,7 @@ void Bitcask::merge() {
 //    sleep(1);
 //	while(true) {
 	// temporary merged dir
-    std::cout<<"merge"<<std::endl;
+//    std::cout<<"merge"<<std::endl;
     char tmpfile[] = "temp-merge";
 	std::string command = "mkdir -p " + this->getTestPath() + "/" + tmpfile;
 	system(command.c_str());
@@ -344,7 +337,7 @@ std::string Bitcask::getTestPath() {
 }
 
 void Bitcask::parseHintFiles(std::vector<std::string>* existHintFiles) {
-	std::cout<<"parsing hint files"<<std::endl;	
+//	std::cout<<"parsing hint files"<<std::endl;	
 /**
 		tStamp	:	ksz	:	valueSz	:	valuePos	:	key
 	    4       :   4   :   4       :       8       :   xxxxx
