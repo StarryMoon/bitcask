@@ -46,7 +46,7 @@ public:
 
 	std::string readBcFile(BcFile *bf, std::string dirName, uint64_t offset, uint32_t len);
 
-	Entry* writeBcFile(BcFile *bf, const std::string& key, const std::string& value, MessageQueue *cq);
+	Entry* writeBcFile(BcFile *bf, const std::string& key, const std::string& value);
 
     // tombstone : valuesize=0
 	void delBcFile(BcFile *bf, const std::string& key);

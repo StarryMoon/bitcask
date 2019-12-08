@@ -101,7 +101,7 @@
 		return s;
 	}
 
-	Entry* BcFiles::writeBcFile(BcFile *bf, const std::string& key, const std::string& value, MessageQueue *cq) {
+	Entry* BcFiles::writeBcFile(BcFile *bf, const std::string& key, const std::string& value) {
 
 		std::cout<<"write bcfile"<<std::endl;
 
@@ -127,10 +127,6 @@
         //strData = crc32 + strData;
 		
 		write(bf->fp, ch, sizeof(ch));
-		/*
-		* Task *pTask = new Task(bf->fp, bf.file_offset, ch);
-          cq->PushTask(pTask);
-		*/
 
 		//std::string strHint = timestamp + keySize + valueSize + std::to_string(valueOffset) + key;
         //bf->hintFp << strHint;

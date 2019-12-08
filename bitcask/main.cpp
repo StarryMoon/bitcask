@@ -23,7 +23,7 @@ void TestPut() {
 
 	random_shuffle(keyVector.begin(), keyVector.end());
 
-    MessageQueue *cq = new MessageQueue();
+//    MessageQueue *cq = new MessageQueue();
 
 	std::thread gc_thread([](Bitcask bc) {
         bc.merge();
@@ -34,10 +34,10 @@ void TestPut() {
 		std::cout<<"i: "<<i<<std::endl;
 		auto key = keyVector[i];
 		auto value = getRandStr(128);
-		bc.put(std::to_string(key), value, cq);
+		bc.put(std::to_string(key), value);
 	}
 
-    delete(cq);
+//    delete(cq);
 	return;
 }
 
@@ -49,50 +49,3 @@ int main()
     std::cout<<"test ending..."<<std::endl;
 	return 0;
 }
-
-/*  test messagequeue
-    MessageQueue *cq = new MessageQueue();
-
-    #define THREAD_NUM 3
-    std::thread threads[THREAD_NUM];
-
-    for ( int i=0; i<THREAD_NUM; ++i )
-        threads[i] = std::thread(thread_fun, &cq );
-
-    int i = 100000;
-    while( i > 0 )
-    {
-        Task *pTask = new Task( --i );
-        cq->PushTask( pTask );
-    }
-
-    for ( int i=0; i<THREAD_NUM; ++i) 
-        threads[i].join();
-*/
-/*
-void thread_fun(MessageQueue *arguments) {
-	uint64_t data_size = 0;
-	std::string data_block;
-	int fd;
-    while(true) {
-        PTask data = arguments->PopTask();
-        
-        if (data != NULL) {
-            std::cout<<"Thread is: "<<std::this_thread::get_id()<<std::endl;
-			if (data_size==0) {
-                fd = data->fd;
-			}
-            
-			//data->fd, data->offset, data->ch
-			if (data_size < 1000000 && fd == data->fd) {
-                data_block += data->content;
-				data_size += sizeof(data->content);
-			} else {
-			    write(data->fd, data_block.c_str(), sizeof(data_block));
-				data_size = 0;
-			}
-        }
-    }
-    return;
-}
-*/

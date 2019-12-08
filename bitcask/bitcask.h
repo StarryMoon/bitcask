@@ -45,7 +45,7 @@ public:
 	int getLocker();
 
 	std::string get(std::string key);
-	void put(const std::string& key, const std::string& value, MessageQueue *cq);
+	void put(const std::string& key, const std::string& value);
 	void del(std::string key);
 
     void fold(void (*f)(const std::string& key));

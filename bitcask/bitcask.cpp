@@ -108,14 +108,13 @@ std::string Bitcask::get(std::string key) {
 	return value;
 }
 
-void Bitcask::put(const std::string& key, const std::string& value, MessageQueue *cq) {
+void Bitcask::put(const std::string& key, const std::string& value) {
     pthread_rwlock_wrlock(&rwlock);
 	std::cout<<"put"<<std::endl;
 
 	checkActiveFile(this);
 
-    // MessageQueue *cq;
-	Entry *e = this->getBCF()->writeBcFile(this->getActiveFile(), key, value, cq);
+	Entry *e = this->getBCF()->writeBcFile(this->getActiveFile(), key, value);
 	
 	pthread_rwlock_unlock(&rwlock); 
 
@@ -253,12 +252,11 @@ void Bitcask::merge() {
                 bf->hintFp = m_fd_hint;
             }
 
-            MessageQueue *cq = new MessageQueue();
-			Entry *entry = bcf->writeBcFile(bf, key, value, cq);
+			Entry *entry = bcf->writeBcFile(bf, key, value);
+            pthread_rwlock_unlock(&rwlock);
 
 			this->hashTable->set(key, entry);
 			delete(bf_);
-            delete(cq);
 	    }
 	}
     
