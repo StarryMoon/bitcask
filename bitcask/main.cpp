@@ -14,7 +14,7 @@
 void TestPut() {
 	std::cout<<"TestPut()"<<std::endl;
 	static Bitcask bc;
-	const int circleTimes = 1000;
+	const int circleTimes = 15000;
     std::vector<int> keyVector;
 	int overwriteRatio = 50;   // --> 50%
 	for (int i=0; i< circleTimes; i++) {
@@ -25,11 +25,11 @@ void TestPut() {
 
     MessageQueue *cq = new MessageQueue();
 
-	std::thread gc_thread([](Bitcask bc){
+/*	std::thread gc_thread([](Bitcask bc){
         bc.merge();
     }, bc);
 	gc_thread.join();
-	
+*/	
 	for (int i = 0; i < circleTimes; i++) {
 		std::cout<<"i: "<<i<<std::endl;
 		auto key = keyVector[i];
@@ -41,47 +41,15 @@ void TestPut() {
 	return;
 }
 
-void TestMerge(Bitcask bc) {
-	 sleep(1);
-     bc.merge();
-}
-
 
 int main()
 {
-
-//    static Bitcask bc;
-	
-/*  const int threadCount= 1;
-	std::thread p[threadCount];
-	for (int i = 0; i < threadCount; i++) {
-		std::thread a(TestMerge, bc);
-		p[i] = std::move(a);
-        p[i] = std::thread(TestMerge, bc);
-	}
-	for (int i=0; i<threadCount; i++) 
-        p[i].join();
-*/		
+		
 	TestPut();
-/*	std::thread q[threadCount];
-	for (int i = 0; i < threadCount; i++) {
-		std::thread b(TestMerge, bc);
-		q[i] = std::move(b);
-        q[i] = std::thread(TestMerge, bc);
-	}
-*/
-
     std::cout<<"test ending..."<<std::endl;
 	return 0;
 }
 
-
-//	bc.merge();
-//  sleep(1);
-//  usleep(100000);
-//	for (int i = 0; i < threadCount; i++) {
-//		p[i].join();
-//	}
 /*  test messagequeue
     MessageQueue *cq = new MessageQueue();
 

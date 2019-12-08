@@ -69,11 +69,15 @@ Bitcask::~Bitcask() {
 	if (this->getBCF() != NULL) {
         this->getBCF()->close_BcFiles();
 	}	
+	std::cout<<"~bitcask ending..."<<std::endl;
 	close(this->getActiveFile_fp());
 	close(this->getActiveFile_hintFp());
     close(this->getLocker());
-	delete(this->activeFile);
-	delete(hashTable);
+//	delete(this->activeFile);
+	this->activeFile = NULL;
+	std::cout<<"~bitcask ending..."<<std::endl;
+//	delete(hashTable);
+	hashTable = NULL;
 	pthread_rwlock_destroy(&rwlock);  
 }
 
@@ -150,7 +154,8 @@ void Bitcask::fold(void (*f)(const std::string& key)) {
 }
 
 void Bitcask::merge() {
-    sleep(1);
+	usleep(100);
+//    sleep(1);
 //	while(true) {
 	// temporary merged dir
     std::cout<<"merge"<<std::endl;
