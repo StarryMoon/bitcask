@@ -6,11 +6,8 @@ template<class T>
 size_t BKDRHash(const T *str)
 {
 	register size_t hash = 0;
-	while (size_t ch = (size_t)*str++)
-	{		
-		hash = hash * 131 + ch;   // or *31、131、1313、13131、131313
-		// hash = hash << 7 + hash << 1 + hash + ch;
-		//  time overhead is the same in Intel platform.
+	while (size_t ch = (size_t)*str++) {		
+		hash = hash * 131 + ch;
 		
 	}
 	return hash;

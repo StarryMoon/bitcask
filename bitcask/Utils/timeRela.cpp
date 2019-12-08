@@ -16,10 +16,6 @@ std::string getCurrentOfFormat(const char* format) {
     std::stringstream  ss;
 	tm buf;
 	try {
-		//localtime is not a thread-safe function
-		//localtime_s(&buf, &t);
-		//ss<< std::put_time(&buf,"%F %T") ;
-
 		ss<< std::put_time(std::localtime(&t), "%F %T") ;
 	}catch (std::exception e) {
 		throw std::runtime_error("format error");

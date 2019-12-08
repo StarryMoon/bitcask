@@ -11,10 +11,8 @@
 #include "messageQ.h"
 #include <string>
 
-void TestPut() {
+void TestPut(Bitcask bc) {
 	std::cout<<"TestPut()"<<std::endl;
-	static Bitcask bc;
-
 	const int circleTimes = 10;
     std::vector<int> keyVector;
 	int overwriteRatio = 50;
@@ -25,22 +23,83 @@ void TestPut() {
 	random_shuffle(keyVector.begin(), keyVector.end());
 
     MessageQueue *cq = new MessageQueue();
+	
 	for (int i = 0; i < circleTimes; i++) {
-
 		std::cout<<"i: "<<i<<std::endl;
-		//auto key = getRandStr(8);
-		//auto key = getRandomInt();
 		auto key = keyVector[i];
 		auto value = getRandStr(128);
 		bc.put(std::to_string(key), value, cq);
 	}
-	bc.merge();
-//  sleep(1);
-//  usleep(100000);
 
     delete(cq);
 	return;
 }
+
+void TestMerge(Bitcask bc) {
+	 sleep(1);
+     bc.merge();
+}
+
+
+int main()
+{
+
+ /*   
+	const int threadCount= 1;
+	std::thread p[threadCount];
+	for (int i = 0; i < threadCount; i++) {
+		std::thread a(TestPut);
+		p[i] = std::move(a);
+        p[i] = std::thread(TestPut);
+	}
+*/
+//    TestPut();
+    static Bitcask bc;
+    const int threadCount= 1;
+	std::thread p[threadCount];
+	for (int i = 0; i < threadCount; i++) {
+		std::thread a(TestPut, bc);
+		p[i] = std::move(a);
+        p[i] = std::thread(TestPut, bc);
+	}
+	std::thread q[threadCount];
+	for (int i = 0; i < threadCount; i++) {
+		std::thread b(TestMerge, bc);
+		q[i] = std::move(b);
+        q[i] = std::thread(TestMerge, bc);
+	}
+
+
+    std::cout<<"test ending..."<<std::endl;
+	return 0;
+}
+
+
+//	bc.merge();
+//  sleep(1);
+//  usleep(100000);
+//	for (int i = 0; i < threadCount; i++) {
+//		p[i].join();
+//	}
+/*  test messagequeue
+    MessageQueue *cq = new MessageQueue();
+
+    #define THREAD_NUM 3
+    std::thread threads[THREAD_NUM];
+
+    for ( int i=0; i<THREAD_NUM; ++i )
+        threads[i] = std::thread(thread_fun, &cq );
+
+    int i = 100000;
+    while( i > 0 )
+    {
+        Task *pTask = new Task( --i );
+        cq->PushTask( pTask );
+    }
+
+    for ( int i=0; i<THREAD_NUM; ++i) 
+        threads[i].join();
+*/
 
 void thread_fun(MessageQueue *arguments) {
 	uint64_t data_size = 0;
@@ -65,50 +124,5 @@ void thread_fun(MessageQueue *arguments) {
 			}
         }
     }
-
     return;
 }
-
-
-int main()
-{
-//test multi-thread 
-/*	const int threadCount= 1;
-	std::thread p[threadCount];
-
-	for (int i = 0; i < threadCount; i++) {
-
-		std::thread a(TestPut);
-		p[i] = std::move(a);
-        p[i] = std::thread(TestPut);
-	}
-
-	for (int i = 0; i < threadCount; i++) {
-		p[i].join();
-	}
-*/
-
-/*  test messagequeue
-    MessageQueue *cq = new MessageQueue();
-
-    #define THREAD_NUM 3
-    std::thread threads[THREAD_NUM];
-
-    for ( int i=0; i<THREAD_NUM; ++i )
-        threads[i] = std::thread(thread_fun, &cq );
-
-    int i = 100000;
-    while( i > 0 )
-    {
-        Task *pTask = new Task( --i );
-        cq->PushTask( pTask );
-    }
-
-    for ( int i=0; i<THREAD_NUM; ++i) 
-        threads[i].join();
-*/		
-    TestPut();
-    std::cout<<"test ending..."<<std::endl;
-	return 0;
-}
-

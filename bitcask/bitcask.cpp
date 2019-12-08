@@ -15,9 +15,6 @@
 
 Bitcask::Bitcask(){
 
-	// "bitcaskTest/"
-    // system  rm -rf bitcask/
-	// std::string command = "mkdir " + this->getTestPath();
 	std::string command = "rm -rf " + this->getTestPath() + "/*";
 	system(command.c_str());
 
@@ -82,7 +79,7 @@ Bitcask::~Bitcask() {
 
 std::string Bitcask::get(std::string key) {
 	pthread_rwlock_rdlock(&rwlock);
-    //Entry *e = this->hashTable.at(key);
+    std::cout<<"get"<<std::endl;
 	Entry *e = this->hashTable->get(key);
 	if (e == NULL) {
         pthread_rwlock_unlock(&rwlock);
@@ -94,7 +91,7 @@ std::string Bitcask::get(std::string key) {
     uint32_t value_size = e->getValueSize();
     uint32_t tstamp = e->getTstamp();
 
-	BcFile *bf = getFileState(file_id);   // search the file
+	BcFile *bf = getFileState(file_id);
 	if (bf == NULL) {
 		pthread_rwlock_unlock(&rwlock);
         std::cout<<"not exists."<<std::endl;
@@ -109,26 +106,20 @@ std::string Bitcask::get(std::string key) {
 
 void Bitcask::put(const std::string& key, const std::string& value, MessageQueue *cq) {
     pthread_rwlock_wrlock(&rwlock);
-	//auto timestamp = getCurrentOfFormat("%F %T");
-	//auto keySize = std::to_string(key.size());
-	//auto valueSize = std::to_string(value.size());
-	//auto hashKey = BKDRHash(key.c_str());
 	std::cout<<"put"<<std::endl;
 
 	checkActiveFile(this);
 
-//    MessageQueue *cq;
+    // MessageQueue *cq;
 	Entry *e = this->getBCF()->writeBcFile(this->getActiveFile(), key, value, cq);
 	
-    // hashtable[key] = value
-	// this->hashTable.insert(std::pair<std::string, Entry*>(key, e));
-	//this->hashTable[key] = e;
+	pthread_rwlock_unlock(&rwlock); 
+
 	this->hashTable->set(key, e);
 	
 	//while (writeFlag.test_and_set());
 	//writeFlag.clear(); 
 
-    pthread_rwlock_unlock(&rwlock); 
 	return;
 }
 
@@ -262,70 +253,7 @@ void Bitcask::merge() {
 			delete(bf_);
             delete(cq);
 	    }
-
-/*
-    pthread_rwlock_wrlock(&rwlock);
-//    std::map<std::string, Entry*>::iterator iter;
-//    for(iter = this->hashTable.begin(); iter != this->hashTable.end(); iter++) {
-		// read
-//	    std::string key = iter->first;
-//	    Entry *e = iter->second;
-    for(int i=0; i<1000; i++) {
-		std::string key = std::to_string(i);
-		Entry *e = hashTable->get(key);
-
-	    uint32_t file_id_ = e->getFileId();
-	    uint64_t file_offset_ = e->getFileOffset();
-        uint32_t value_size_ = e->getValueSize();
-        uint32_t tstamp_ = e->getTstamp();
-		BcFile *bf_ = this->getFileState(file_id_);
-	    if (bf_ == NULL) {
-		    pthread_rwlock_unlock(&rwlock);
-            std::cout<<"not exists."<<std::endl;
-		    return;
-		}
-
-        std::string value = this->getBCF()->readBcFile(bf_, this->getDirName(), file_offset_, value_size_);
-
-		// write
-        auto offset = bf->file_offset;
-        auto logSize = this->getLogSize();
-        if (offset >= logSize) {
-			close(bf->fp);
-            close(bf->hintFp);
-            bcf->put_BcFiles(bf, bf->file_id);
-           
-			std::string file_id = getCurrentOfSecond();
-            auto file_name = path + "/" + file_id + ".data";
-			int m_fd;
-            m_fd = open(file_name.c_str(), O_CREAT|O_WRONLY|O_APPEND, S_IRUSR);
-            if (m_fd == -1) {
-                throw std::runtime_error("hint file open error.");
-            }
-            bf->fp = m_fd;
-
-            bf->file_id = strtoul(file_id.c_str(), NULL, 10);
-            
-			auto file_name_hint = path + "/" + std::to_string(bf->file_id) + ".hint";
-			int m_fd_hint;
-            m_fd_hint = open(file_name_hint.c_str(), O_CREAT|O_WRONLY|O_APPEND, S_IRUSR);
-            if (m_fd_hint == -1) {
-                throw std::runtime_error("hint file open error.");
-            }
-            bf->hintFp = m_fd_hint;
-        }
-
-	    Entry *entry = bcf->writeBcFile(bf, key, value);
-	    //this->hashTable[key] = entry;
-		this->hashTable->set(key, entry);
-    }
-*/
 	}
-    //rm ./* file
-
-	//mv ./temp/*
-
-	//remove temp
     
 	this->setBCF(bcf);
 	this->setActiveFile(bf);
@@ -421,7 +349,6 @@ void Bitcask::parseHintFiles(std::vector<std::string>* existHintFiles) {
 		std::ifstream file;
 		file.open(*iter,std::iostream::in|std::iostream::binary);
 		// parse file_id
-		//std::cout<<"hint file name: "<<*iter<<std::endl;
 		uint32_t file_id = strtoul((*iter).c_str(), NULL, 10);
 		//hint header size
         while (!file.eof()) {

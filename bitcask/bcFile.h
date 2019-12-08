@@ -56,7 +56,7 @@ public:
 	std::map<uint32_t, BcFile*> getBFS();
 
 private:
-    std::map<uint32_t, BcFile*> bfs;  // file_timestamp -> .data / .hint
+    std::map<uint32_t, BcFile*> bfs;
 	
 	pthread_rwlock_t rwlock;   // lock
 

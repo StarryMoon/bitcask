@@ -19,10 +19,6 @@ int getRandomIntRatio(int count, int overwriteRatio);
 
 template<typename T>
 void inputUntilTrue(T& tobeInput, std::string& msg, std::function<bool(T)> judgeFunc){
-<<<<<<< HEAD
-	//std::cout<<"in the function"<<std::endl;
-=======
->>>>>>> master
 	while(!(std::cin>>tobeInput)||!judgeFunc(tobeInput)){
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
@@ -32,10 +28,6 @@ void inputUntilTrue(T& tobeInput, std::string& msg, std::function<bool(T)> judge
 
 template<typename T,  typename F>
 void inputUntilTrue(T& tobeInput, std::string msg, F judgeFunc){
-<<<<<<< HEAD
-	//std::cout<<"in the template"<<std::endl;
-=======
->>>>>>> master
 	while(!(std::cin>>tobeInput)||!judgeFunc(tobeInput)){
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');

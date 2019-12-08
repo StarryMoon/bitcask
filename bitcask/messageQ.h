@@ -9,7 +9,6 @@
 #include <condition_variable>
 
 typedef struct task_tag {
-//    int data;
     int fd;
     uint64_t offset;
     char *content;

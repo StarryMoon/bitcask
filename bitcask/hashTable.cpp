@@ -8,7 +8,9 @@
 
 HashTable::HashTable() {
     table  = new HashItem*[SIZE]();
-	pthread_rwlock_init(&rwlock, NULL);
+	for (int i=0; i<10000; i++) {
+        pthread_rwlock_init(&rwlock[i], NULL);
+	}	
 }
 
 HashTable::~HashTable(){
@@ -21,19 +23,38 @@ HashTable::~HashTable(){
 
     delete[] table;
 
-	pthread_rwlock_destroy(&rwlock); 
+    for (int i=0; i<10000; i++) {
+        pthread_rwlock_destroy(&rwlock[i]); 
+	}
 }
 
 void HashTable::set(std::string key, Entry *val){
 	std::cout<<"hashtable set()"<<std::endl;
-	pthread_rwlock_wrlock(&rwlock);
-    int idx = stoi(key, NULL, 10) % SIZE;
+	
+	int num = stoi(key, NULL, 10);
+    int idx = num % SIZE;
+	int flag = num / 1000;
 
+	pthread_rwlock_wrlock(&rwlock[flag]);
+    
 	// hash conflict
 	while (table[idx] && table[idx]->key != key) {
-        idx = (idx+1) % SIZE;
+        idx = (idx) %SIZE;
 	}
 
+/*	if (table[idx]->key == key) {
+        HashItem *item = table[idx];
+		std::cout<<"hasdsssshtablllle set()"<<std::endl;
+		Entry *tmp;
+		tmp = item->entry;
+		std::cout<<"has set()"<<std::endl;
+		uint32_t tStamp = item->entry->getTstamp();
+		if (tStamp > val->getTstamp()) {
+    	    return;
+		}
+		std::cout<<"lle set()"<<std::endl;
+	}
+*/	
     if(table[idx]) {
 		delete table[idx];
 		//pthread_rwlock_unlock(&rwlock); 
@@ -41,7 +62,7 @@ void HashTable::set(std::string key, Entry *val){
 
 	if (val == NULL) {
         table[idx] = NULL;
-		pthread_rwlock_unlock(&rwlock); 
+		pthread_rwlock_unlock(&rwlock[flag]); 
 		return;     
 	}
 
@@ -66,33 +87,36 @@ void HashTable::set(std::string key, Entry *val){
     //  std::shared_ptr<HashItem> ppp(table[idx]);
     //	std::swap(tmp, ppp);   
    
-	pthread_rwlock_unlock(&rwlock); 
+	pthread_rwlock_unlock(&rwlock[flag]); 
 }
     
 Entry* HashTable::get(std::string key){
-	pthread_rwlock_rdlock(&rwlock);
-    int idx = stoi(key, NULL, 10) %SIZE;
+	
+	int num = stoi(key, NULL, 10);
+    int idx = num % SIZE;
+	int flag = num / 1000;
+	pthread_rwlock_rdlock(&rwlock[flag]);
 	
     //hash conflict
 	while (table[idx] && table[idx]->key != key) {
         idx = (idx) %SIZE;
 	}
 	Entry *tmp = table[idx]->entry;
-	pthread_rwlock_unlock(&rwlock);
+	pthread_rwlock_unlock(&rwlock[flag]);
 	return tmp;
 }
 
 void HashTable::del(std::string key) {
-	pthread_rwlock_wrlock(&rwlock);
+/*	pthread_rwlock_wrlock(&rwlock);
     
-	// ...
 
 	pthread_rwlock_unlock(&rwlock); 
 	return;
+*/	
 }
 
 bool HashTable::setCompare(std::string key, Entry *e) {
-	pthread_rwlock_wrlock(&rwlock);
+/*	pthread_rwlock_wrlock(&rwlock);
     Entry *old = this->get(key);
 	if (e->isNewerThan(old)) {
         this->set(key, e);
@@ -100,5 +124,6 @@ bool HashTable::setCompare(std::string key, Entry *e) {
 	}
 
 	return false;
-    pthread_rwlock_unlock(&rwlock); 
+    pthread_rwlock_unlock(&rwlock);
+*/	 
 }

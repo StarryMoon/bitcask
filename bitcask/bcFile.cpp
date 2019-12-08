@@ -92,8 +92,6 @@
         in.read(buffer, len);
         in.close();
 
-		//TODO:; decode / crc32 check
-
         std::string s;
 		for (int i=0; i<len; i++) {
             s += std::to_string(buffer[i]);

@@ -72,23 +72,7 @@ private:
 
     // map: insert --> return directly/not overlap
 	// [key] = value  --> overlap
-<<<<<<< HEAD
-<<<<<<< HEAD
-	std::map<std::string, Entry*> hashTable;   
-	
-=======
-//	std::map<std::string, Entry*> hashTable;   
-	
-	HashTable *hashTable;
-
->>>>>>> master
-	// vector   key->file_info   duplicate items exist
-=======
-    // std::map<std::string, Entry*> hashTable;
 	// vector   key->file_info   duplicate items exist   
 	
 	HashTable *hashTable;
-
-	
->>>>>>> master
 };

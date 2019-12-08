@@ -127,11 +127,9 @@ void checkActiveFile(Bitcask *bc) {
         bc->getBCF()->put_BcFiles(bc->getActiveFile(), bc->getActiveFile_fileId());
 
         // data file
-        //bc->getActiveFile()->fp = createWriteableFile(bc);
         createWriteableFile(bc);
 
         // hint file
-        // bc->activeFile->hintFp = createHintFile(bc);
         createHintFile(bc);
         bc->setActiveFile_offset(0);   
     }
