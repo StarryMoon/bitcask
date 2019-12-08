@@ -3,7 +3,7 @@
 
 #include "messageQ.h"
 
-    MessageQueue::MessageQueue(){}
+    MessageQueue::MessageQueue() {}
 
     MessageQueue::~MessageQueue() {
         if (!m_queue.empty()) {
