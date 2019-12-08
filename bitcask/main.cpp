@@ -11,8 +11,9 @@
 #include "messageQ.h"
 #include <string>
 
-void TestPut(Bitcask bc) {
+void TestPut() {
 	std::cout<<"TestPut()"<<std::endl;
+	static Bitcask bc;
 	const int circleTimes = 10;
     std::vector<int> keyVector;
 	int overwriteRatio = 50;
@@ -28,6 +29,7 @@ void TestPut(Bitcask bc) {
 		std::cout<<"i: "<<i<<std::endl;
 		auto key = keyVector[i];
 		auto value = getRandStr(128);
+		std::cout<<"xxx"<<std::endl;
 		bc.put(std::to_string(key), value, cq);
 	}
 
@@ -53,22 +55,27 @@ int main()
         p[i] = std::thread(TestPut);
 	}
 */
-//    TestPut();
-    static Bitcask bc;
-    const int threadCount= 1;
+   
+//    static Bitcask bc;
+	
+/*    const int threadCount= 1;
 	std::thread p[threadCount];
 	for (int i = 0; i < threadCount; i++) {
-		std::thread a(TestPut, bc);
+		std::thread a(TestMerge, bc);
 		p[i] = std::move(a);
-        p[i] = std::thread(TestPut, bc);
+        p[i] = std::thread(TestMerge, bc);
 	}
-	std::thread q[threadCount];
+	for (int i=0; i<threadCount; i++) 
+        p[i].join();
+*/		
+	TestPut();
+/*	std::thread q[threadCount];
 	for (int i = 0; i < threadCount; i++) {
 		std::thread b(TestMerge, bc);
 		q[i] = std::move(b);
         q[i] = std::thread(TestMerge, bc);
 	}
-
+*/
 
     std::cout<<"test ending..."<<std::endl;
 	return 0;
@@ -100,7 +107,7 @@ int main()
     for ( int i=0; i<THREAD_NUM; ++i) 
         threads[i].join();
 */
-
+/*
 void thread_fun(MessageQueue *arguments) {
 	uint64_t data_size = 0;
 	std::string data_block;
@@ -126,3 +133,4 @@ void thread_fun(MessageQueue *arguments) {
     }
     return;
 }
+*/
