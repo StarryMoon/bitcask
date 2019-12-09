@@ -32,8 +32,9 @@ Bitcask::Bitcask(){
 	this->hashTable = new HashTable();
 
     // scan hint file
-    std::vector<std::string>* existHintFiles = scanHintFiles();
-    parseHintFiles(existHintFiles);
+    std::vector<std::string>* existHintFiles;
+//	scanHintFiles(existHintFiles);
+//    parseHintFiles(existHintFiles);
 
     //get the last file_id
     uint32_t file_id = getLastFileInfo(existHintFiles);
@@ -78,6 +79,7 @@ Bitcask::~Bitcask() {
 
 std::string Bitcask::get(std::string key) {
 	pthread_rwlock_rdlock(&rwlock);
+	
 	Entry *e = this->hashTable->get(key);
 	if (e == NULL) {
         pthread_rwlock_unlock(&rwlock);
@@ -95,9 +97,11 @@ std::string Bitcask::get(std::string key) {
         std::cout<<"not exists."<<std::endl;
 		return NULL;
 	}
-	
+
     std::string value = this->getBCF()->readBcFile(bf, this->getDirName(), file_offset, value_size);
 	
+	std::cout<<"value : "<<value<<std::endl;
+
 	pthread_rwlock_unlock(&rwlock);
 	return value;
 }
@@ -150,7 +154,7 @@ void Bitcask::merge() {
 //    sleep(1);
 //	while(true) {
 	// temporary merged dir
-//    std::cout<<"merge"<<std::endl;
+    std::cout<<"merge"<<std::endl;
     char tmpfile[] = "temp-merge";
 	std::string command = "mkdir -p " + this->getTestPath() + "/" + tmpfile;
 	system(command.c_str());
@@ -182,12 +186,17 @@ void Bitcask::merge() {
     bf->hintFp = fd_hint;
    
 	bf->file_offset = 0;
-    std::vector<std::string>* existHintFiles = scanHintFiles();
+    std::vector<std::string> *existHintFiles = new std::vector<std::string>();
+	scanHintFiles(existHintFiles);
 	std::vector<std::pair<std::string, Entry*>> eArray;
     scanEntry(eArray, existHintFiles);
     std::vector<std::pair<std::string, Entry*>>::iterator iter;
+	
+	std::cout<<"scan ending..."<<std::endl;
+
     for(iter = eArray.begin(); iter != eArray.end(); iter++) {
 		std::string key = iter->first;
+		std::cout<<"key : "<<key<<std::endl;
 		Entry *e_hint = iter->second;
 		pthread_rwlock_rdlock(&rwlock);
 		Entry *e_hashtable = this->hashTable->get(key);
@@ -208,6 +217,7 @@ void Bitcask::merge() {
 			}
 
 			if (!e_hint->isEqual(e_hashtable_again)) {
+				pthread_rwlock_unlock(&rwlock);
 				continue;
 			}
 
@@ -388,36 +398,100 @@ void Bitcask::parseHintFiles(std::vector<std::string>* existHintFiles) {
 
 void Bitcask::scanEntry(std::vector<std::pair<std::string, Entry*>> eArray, std::vector<std::string>* existHintFiles) {
     std::vector<std::string>::iterator iter;
-    char *buffer;
-	int HintHeaderSize = 20;
+	std::cout<<"entry : "<<existHintFiles->size()<<std::endl;
+    //char *buffer;
+	
+	int HintHeaderSize = 24;
 	int i=0;
 	for (iter=existHintFiles->begin(); iter!=existHintFiles->end();iter++) {
 		std::ifstream file;
-		file.open(*iter,std::iostream::in|std::iostream::binary);
+		file.open(this->getDirName() + "/" + *iter, std::iostream::in|std::iostream::binary);
+		std::cout<<"dir name : "<<this->getDirName()<<std::endl;
+		std::cout<<"iter : "<<*iter<<std::endl;
 		uint32_t file_id = strtoul((*iter).c_str(), NULL, 10);
+
         while (!file.eof()) {
-			file.read(buffer, HintHeaderSize);
-			uint32_t *tStamp, *ksz, *valueSz;
-			uint64_t *file_offset;
-			DecodeHintHeader(buffer, tStamp, ksz, valueSz, file_offset);  
-			if (valueSz == 0) {
+			char *bufer;
+		    bufer = new char[24];
+            file.read(bufer, 24);
+			int readedytes = file.gcount();
+			std::cout<<"read : "<<readedytes<<std::endl;
+
+            uint64_t byte0 = (unsigned char)(bufer[0]) << 56;
+			uint64_t byte1 = (unsigned char)(bufer[1]) << 48;
+			uint64_t byte2 = (unsigned char)(bufer[2]) << 40;
+			uint64_t byte3 = (unsigned char)(bufer[3]) << 32;
+			uint64_t byte4 = (unsigned char)(bufer[4]) << 24;
+			uint64_t byte5 = (unsigned char)(bufer[5]) << 16;
+			uint64_t byte6 = (unsigned char)(bufer[6]) << 8;
+			uint64_t byte7 = (unsigned char)(bufer[7]);
+            uint64_t ts = byte0|byte1|byte2|byte3|byte4|byte5|byte6|byte7;
+
+			std::cout<<"ts : "<<ts<<std::endl;
+
+			uint32_t b0 = bufer[8] << 24;
+			uint32_t b1 = bufer[9] << 16;
+			uint32_t b2 = bufer[10] << 8;
+			uint32_t b3 = bufer[11];
+			uint32_t kSz = b0|b1|b2|b3;
+			std::cout<<"ksz : "<<kSz<<std::endl;
+
+			uint32_t v0 = (unsigned char)(bufer[12]) << 24;
+			uint32_t v1 = (unsigned char)(bufer[13]) << 16;
+			uint32_t v2 = (unsigned char)(bufer[14]) << 8;
+			uint32_t v3 = (unsigned char)(bufer[15]);
+			uint32_t vSz = v0|v1|v2|v3;
+			std::cout<<"vsz : "<<vSz<<std::endl;
+
+			uint64_t f0 = (unsigned char)(bufer[16]) << 56;
+			uint64_t f1 = (unsigned char)(bufer[17]) << 48;
+			uint64_t f2 = (unsigned char)(bufer[18]) << 40;
+			uint64_t f3 = (unsigned char)(bufer[19]) << 32;
+			uint64_t f4 = (unsigned char)(bufer[20]) << 24;
+			uint64_t f5 = (unsigned char)(bufer[21]) << 16;
+			uint64_t f6 = (unsigned char)(bufer[22]) << 8;
+			uint64_t f7 = (unsigned char)(bufer[23]);
+            uint64_t offset = f0|f1|f2|f3|f4|f5|f6|f7;
+			std::cout<<"off : "<<offset<<std::endl;
+
+
+
+
+
+/*
+			char buffer[24];
+			file.read(buffer, 24);
+			int readedBytes = file.gcount();
+			std::cout<<"read : "<<readedBytes<<std::endl;
+			std::cout<<"buffer : "<<buffer<<std::endl;
+*/
+			//uint32_t *tStamp, *ksz, *valueSz;
+			//uint64_t *file_offset;
+			//char *ch = buffer;
+			//DecodeHintHeader(buffer, tStamp, ksz, valueSz, file_offset);  
+			//std::cout<<"tStamp : "<<*tStamp<<std::endl;
+			if (vSz == 0) {
 				continue;
 			}
 			char *keyByte;
-			file.read(keyByte, *ksz);
+			file.read(keyByte, kSz);
+			std::cout<<"read : "<<file.gcount()<<std::endl;
 		
-			Entry *e;
-			e->setFileId(file_id);
-			e->setFileOffset(*file_offset);
-			e->setValueSize(*valueSz);
-			e->setTstamp(*tStamp);
+		    uint32_t ttttt = 1234;
+			
+			Entry *e = new Entry(file_id, offset, vSz, ttttt);
 
-            std::pair<std::string, Entry*> ePair{keyByte, e};
+/*			e->setFileId(file_id);
+			e->setFileOffset(offset);
+			e->setValueSize(vSz);
+			e->setTstamp(ts);
+*/
+std::cout<<"read : ssss"<<std::endl;
+            std::pair<std::string, Entry*> ePair{keyByte, new Entry(file_id, offset, vSz, ttttt)};
 			eArray[i++] = ePair;
 		}
-		file.close();
+		file.close();	
 	}
-
 }
 
 

@@ -46,7 +46,7 @@ void createWriteableFile(Bitcask *bc);
 
 void createHintFile(Bitcask *bc); 
 
-std::vector<std::string>* scanHintFiles();
+void scanHintFiles(std::vector<std::string>*);
 
 std::vector<std::string>* listDataFiles();
 

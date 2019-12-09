@@ -82,7 +82,6 @@ char* getCrc32(const char* InStr, int len) {
     buf[2] = Crc >> 8;
     buf[3] = Crc;
 
-    //uint32_t crc32 = strtoul(buf, NULL, 10);
     return buf;    
 }
 
@@ -132,7 +131,7 @@ void checkActiveFile(Bitcask *bc) {
     }
 }
 
-std::vector<std::string>* scanHintFiles() {
+void scanHintFiles(std::vector<std::string> *existHintFiles) {
     struct dirent *ptr;    
     DIR *dir;
     std::string PATH = "./bitcaskTest";   // bc.dirName
@@ -150,19 +149,19 @@ std::vector<std::string>* scanHintFiles() {
         show = strstr(std::string(ptr->d_name).c_str(), str.c_str());
         if(show != NULL) {
             files.push_back(ptr->d_name);
+            existHintFiles->push_back(ptr->d_name);
         }  
     }
     
-//    for (int i = 0; i < files.size(); ++i)
-//    {
-//        std::cout << files[i] << std::endl;
-//    }
+    for (int i = 0; i < files.size(); ++i)
+    {
+        std::cout << files[i] << std::endl;
+    }
  
     closedir(dir);
 
-	return &files;
- 
- // return NULL; 
+//	return &files;
+//  return NULL; 
 }
 
 std::vector<std::string>* listDataFiles() {

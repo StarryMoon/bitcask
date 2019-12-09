@@ -85,7 +85,7 @@ void HashTable::set(std::string key, Entry *val){
 }
     
 Entry* HashTable::get(std::string key){
-	
+	std::cout<<"hash get : "<<std::endl;
 	int num = stoi(key, NULL, 10);
     int idx = num % SIZE;
 	int flag = num / 1000;
@@ -95,7 +95,13 @@ Entry* HashTable::get(std::string key){
 	while (table[idx] && table[idx]->key != key) {
         idx = (idx) %SIZE;
 	}
-	Entry *tmp = table[idx]->entry;
+
+	HashItem *it = table[idx];
+	if (it == NULL) {
+        return NULL;
+	}
+
+	Entry *tmp = it->entry;
 	pthread_rwlock_unlock(&rwlock[flag]);
 	return tmp;
 }

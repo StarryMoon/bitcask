@@ -10,3 +10,5 @@ std::string getStrToday();
 std::string getCurrentOfFormat(const char* format);
 // 1970-01-01 00:00:00 --
 std::string getCurrentOfSecond();
+
+uint64_t getCurrentOfMicroSecond();

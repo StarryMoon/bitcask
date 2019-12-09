@@ -84,53 +84,119 @@
         std::ifstream in;
 		in.open(dirName + "/" + std::to_string(bf->file_id) + ".data", std::iostream::in);
         in.seekg(offset, std::iostream::beg);
-		
+
+		std::cout<<"read file off : "<<offset<<std::endl;
+
 		char *buffer;
 		buffer = new char[len];
         in.read(buffer, len);
         in.close();
 
-        std::string s;
-		for (int i=0; i<len; i++) {
-            s += std::to_string(buffer[i]);
-		}
+		std::string str = buffer;
+//		std::cout<<"read file value : "<<buffer<<std::endl;
 		
-		delete(buffer);
-		return s;
+		return str;
 	}
 
 	Entry* BcFiles::writeBcFile(BcFile *bf, const std::string& key, const std::string& value) {
 
 		auto timestamp = getCurrentOfSecond();
+		uint64_t ts = getCurrentOfMicroSecond();
+		std::cout<<"t : "<<ts<<std::endl;
+        uint32_t kSz = key.size();
+		uint32_t valueSz = value.size();
 	    auto keySize = std::to_string(key.size());
 	    auto valueSize = std::to_string(value.size());
 	    //auto hashKey = BKDRHash(key.c_str());
 
-        // HeaderSize = 16
-	    auto valueOffset = bf->file_offset + HeaderSize + strtoull(keySize.c_str(), NULL, 10);
+        // HeaderSize = 16  --> 20
+	    uint64_t valueOffset = bf->file_offset + 20 + kSz;
 	    std::string strData = timestamp + keySize + valueSize + key + value;
+        std::cout<<"offset : "<<valueOffset<<std::endl;
 
-		char* crc32 = getCrc32(strData.c_str(), strData.size());      // char*
-
+        char dataHeader[20];
+		char* crc32 = getCrc32(strData.c_str(), strData.size());
+//		std::cout<<"crc32 : "<<crc32<<std::endl;
+		memcpy(dataHeader, crc32, 4);
+		//EncodeDataHeader(dataHeader, ts, kSz, valueSz);
+		dataHeader[4] = ts >> 56;
+		dataHeader[5] = ts >> 48;
+		dataHeader[6] = ts >> 40;
+		dataHeader[7] = ts >> 32;
+		dataHeader[8] = ts >> 24;
+		dataHeader[9] = ts >> 16;
+		dataHeader[10] = ts >> 8;
+		dataHeader[11] = ts;
+		dataHeader[12] = kSz >> 24;
+		dataHeader[13] = kSz >> 16;
+		dataHeader[14] = kSz >> 8;
+		dataHeader[15] = kSz;
+		dataHeader[16] = valueSz >> 24;
+		dataHeader[17] = valueSz >> 16;
+		dataHeader[18] = valueSz >> 8;
+		dataHeader[19] = valueSz;
+//		std::string strDataHeader;
+/*		for (int i=0;i<20;i++) {
+            std::cout<<"h : "<<dataHeader[i]<<std::endl;
+		}
+*/
 		//char *ch = "ch";
-		char ch[1000];
-		EncodeData(ch, strtoul(crc32, NULL, 10), strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), key, value); 
+		//char ch[1000];
+		//EncodeData(ch, crc32, strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), key, value); 
+		
+		
+		
 		//write(bf->fp, ch, std::to_string(ch).size());
         //strData = crc32 + strData;
-		
-		write(bf->fp, ch, sizeof(ch));
 
+		write(bf->fp, dataHeader, 20);
+		write(bf->fp, key.c_str(), kSz);
+		write(bf->fp, value.c_str(), valueSz);
+		//std::cout<<"data : "<<ch<<std::endl;
+		//write(bf->fp, crc32, 4);
+		//write(bf->fp, strData.c_str(), strData.size());
+
+
+        char hintHeader[24];
 		//std::string strHint = timestamp + keySize + valueSize + std::to_string(valueOffset) + key;
-        //bf->hintFp << strHint;
-		char chHint[1000];
-		EncodeHint(chHint, strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), valueOffset, key);
+		hintHeader[0] = ts >> 56;
+		hintHeader[1] = ts >> 48;
+		hintHeader[2] = ts >> 40;
+		hintHeader[3] = ts >> 32;
+		hintHeader[4] = ts >> 24;
+		hintHeader[5] = ts >> 16;
+		hintHeader[6] = ts >> 8;
+		hintHeader[7] = ts;
+		hintHeader[8] = kSz >> 24;
+		hintHeader[9] = kSz >> 16;
+		hintHeader[10] = kSz >> 8;
+		hintHeader[11] = kSz;
+		hintHeader[12] = valueSz >> 24;
+		hintHeader[13] = valueSz >> 16;
+		hintHeader[14] = valueSz >> 8;
+		hintHeader[15] = valueSz;
+		hintHeader[16] = valueOffset >> 56;
+		hintHeader[17] = valueOffset >> 48;
+		hintHeader[18] = valueOffset >> 40;
+		hintHeader[19] = valueOffset >> 32;
+		hintHeader[20] = valueOffset >> 24;
+		hintHeader[21] = valueOffset >> 16;
+		hintHeader[22] = valueOffset >> 8;
+		hintHeader[23] = valueOffset;
 		
-		write(bf->hintFp, chHint, sizeof(chHint));
+		std::cout<<"ts : "<<ts<<std::endl;
+		std::cout<<"vs : "<<valueSz<<std::endl;
+		
+		//char chHint[1000];
+		//EncodeHint(chHint, strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), valueOffset, key);
+		
+		write(bf->hintFp, hintHeader, 24);
+		write(bf->hintFp, key.c_str(), kSz);
 
-        //HeaderSize =16
-		bf->file_offset = bf->file_offset + HeaderSize + strtoull(keySize.c_str(), NULL, 10) + strtoull(valueSize.c_str(), NULL, 10);
+        //HeaderSize =16  --> 20
+		bf->file_offset = bf->file_offset + 20 + kSz + valueSz;
 
-        return new Entry(bf->file_id, valueOffset, strtoul(valueSize.c_str(), NULL, 10), strtoul(timestamp.c_str(), NULL, 10));
+        return new Entry(bf->file_id, valueOffset, valueSz, strtoul(timestamp.c_str(), NULL, 10));
 	}
 
     // tombstone : keySize=0, valueSize=0
@@ -147,7 +213,7 @@
 		char* crc32 = getCrc32(strData.c_str(), strData.size());      // char*
         
 		char ch[1000];
-		EncodeData(ch, strtoul(crc32, NULL, 10), strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), key, NULL); 
+		EncodeData(ch, crc32, strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), key, NULL); 
 		write(bf->fp, ch, sizeof(ch));
 	   
 	    //std::string strHint = timestamp + keySize + valueSize + std::to_string(valueOffset) + key;
