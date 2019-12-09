@@ -53,7 +53,7 @@ public:
 
     void parseHintFiles(std::vector<std::string>*);
 
-    void scanEntry(std::vector<std::pair<std::string, Entry*>>, std::vector<std::string>*);
+    std::vector<std::pair<std::string, Entry*>> scanEntry(std::vector<std::string>*);
 
 	BcFile* getFileState(uint32_t file_id);
 

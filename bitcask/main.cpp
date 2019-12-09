@@ -39,7 +39,7 @@ void TestPut() {
 		auto value = getRandStr(128);
 		bc.put(std::to_string(key), value);
 		std::cout<<"value : "<<value<<std::endl;
-		break;
+		//break;
 	}
 
 	bc.get(std::to_string(9));

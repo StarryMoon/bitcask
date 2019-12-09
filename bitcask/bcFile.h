@@ -25,8 +25,8 @@ struct BcFile {
 	uint32_t file_id;
 	uint64_t file_offset;
 	int hintFp;
-	std::ofstream *cfp;
-	std::ofstream *cHintFP;
+	//std::ofstream *cfp;
+	//std::ofstream *cHintFP;
 	uint64_t file_id_;  // 8 bytes
 };
 

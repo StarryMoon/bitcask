@@ -189,10 +189,11 @@ void Bitcask::merge() {
     std::vector<std::string> *existHintFiles = new std::vector<std::string>();
 	scanHintFiles(existHintFiles);
 	std::vector<std::pair<std::string, Entry*>> eArray;
-    scanEntry(eArray, existHintFiles);
+    eArray = scanEntry(existHintFiles);
     std::vector<std::pair<std::string, Entry*>>::iterator iter;
 	
 	std::cout<<"scan ending..."<<std::endl;
+    std::cout<<"array size()..."<<eArray.size()<<std::endl;
 
     for(iter = eArray.begin(); iter != eArray.end(); iter++) {
 		std::string key = iter->first;
@@ -228,6 +229,7 @@ void Bitcask::merge() {
 		    BcFile *bf_ = this->getFileState(file_id_);
 
             std::string value = this->getBCF()->readBcFile(bf_, this->getDirName(), file_offset_, value_size_);
+			std::cout<<"merge value : "<<value<<std::endl;
 			auto offset = bf->file_offset;
 			auto logSize = this->getLogSize();
 			if (offset >= logSize) {
@@ -259,7 +261,7 @@ void Bitcask::merge() {
             pthread_rwlock_unlock(&rwlock);
 
 			this->hashTable->set(key, entry);
-			delete(bf_);
+			//delete(bf_);
 	    }
 	}
     
@@ -396,13 +398,14 @@ void Bitcask::parseHintFiles(std::vector<std::string>* existHintFiles) {
 }
 
 
-void Bitcask::scanEntry(std::vector<std::pair<std::string, Entry*>> eArray, std::vector<std::string>* existHintFiles) {
+std::vector<std::pair<std::string, Entry*>> Bitcask::scanEntry(std::vector<std::string>* existHintFiles) {
     std::vector<std::string>::iterator iter;
 	std::cout<<"entry : "<<existHintFiles->size()<<std::endl;
+	std::vector<std::pair<std::string, Entry*>> eArray;
     //char *buffer;
 	
 	int HintHeaderSize = 24;
-	int i=0;
+	//int i=0;
 	for (iter=existHintFiles->begin(); iter!=existHintFiles->end();iter++) {
 		std::ifstream file;
 		file.open(this->getDirName() + "/" + *iter, std::iostream::in|std::iostream::binary);
@@ -454,10 +457,6 @@ void Bitcask::scanEntry(std::vector<std::pair<std::string, Entry*>> eArray, std:
             uint64_t offset = f0|f1|f2|f3|f4|f5|f6|f7;
 			std::cout<<"off : "<<offset<<std::endl;
 
-
-
-
-
 /*
 			char buffer[24];
 			file.read(buffer, 24);
@@ -465,33 +464,36 @@ void Bitcask::scanEntry(std::vector<std::pair<std::string, Entry*>> eArray, std:
 			std::cout<<"read : "<<readedBytes<<std::endl;
 			std::cout<<"buffer : "<<buffer<<std::endl;
 */
-			//uint32_t *tStamp, *ksz, *valueSz;
-			//uint64_t *file_offset;
-			//char *ch = buffer;
-			//DecodeHintHeader(buffer, tStamp, ksz, valueSz, file_offset);  
-			//std::cout<<"tStamp : "<<*tStamp<<std::endl;
 			if (vSz == 0) {
 				continue;
 			}
+
+			//std::cout<<"read : "<<file.gcount()<<std::endl;
 			char *keyByte;
 			file.read(keyByte, kSz);
-			std::cout<<"read : "<<file.gcount()<<std::endl;
+			std::cout<<"key : "<<keyByte<<std::endl;
 		
-		    uint32_t ttttt = 1234;
+		    //uint32_t ttttt = 1234;
 			
-			Entry *e = new Entry(file_id, offset, vSz, ttttt);
-
-/*			e->setFileId(file_id);
+			Entry *e = new Entry(file_id, offset, vSz, file_id);
+            std::cout<<"read : ppppp"<<std::endl;
+			e->setFileId(file_id);
+			std::cout<<"read : ppppp"<<std::endl;
 			e->setFileOffset(offset);
 			e->setValueSize(vSz);
-			e->setTstamp(ts);
-*/
-std::cout<<"read : ssss"<<std::endl;
-            std::pair<std::string, Entry*> ePair{keyByte, new Entry(file_id, offset, vSz, ttttt)};
-			eArray[i++] = ePair;
+//			e->setTstamp(ttttt);
+
+//std::cout<<"read : ssss"<<std::endl;
+            std::pair<std::string, Entry*> ePair{keyByte, e};
+			std::cout<<"read : ssss"<<std::endl;
+			//eArray[i++] = ePair;
+			eArray.push_back(ePair);
+			//std::cout<<"read : sspppppss  "<<i<<std::endl;
 		}
 		file.close();	
 	}
+
+	return eArray;
 }
 
 
