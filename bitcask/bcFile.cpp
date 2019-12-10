@@ -195,7 +195,8 @@
 
         //HeaderSize =16  --> 20
 		bf->file_offset = bf->file_offset + 20 + kSz + valueSz;
-
+        
+		std::cout<<"write finishing "<<std::endl;
         return new Entry(bf->file_id, valueOffset, valueSz, strtoul(timestamp.c_str(), NULL, 10));
 	}
 

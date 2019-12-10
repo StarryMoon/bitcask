@@ -1,3 +1,4 @@
+//#pragma pack(1)
 #include <iostream>
 #include "bitcask.h"
 #include "Utils/hash.h"
@@ -260,11 +261,15 @@ void Bitcask::merge() {
 			Entry *entry = bcf->writeBcFile(bf, key, value);
             pthread_rwlock_unlock(&rwlock);
 
+            std::cout<<"merge hash : "<<std::endl;
 			this->hashTable->set(key, entry);
 			//delete(bf_);
+			std::cout<<"merge hash"<<std::endl;
 	    }
 	}
     
+	std::cout<<"merge."<<std::endl;
+
 	this->setBCF(bcf);
 	this->setActiveFile(bf);
 	this->setDirName(path);
@@ -273,8 +278,9 @@ void Bitcask::merge() {
 	close(fd_hint);
 	delete(bf);
 	delete(bcf);
-	pthread_rwlock_unlock(&rwlock); 
+	//pthread_rwlock_unlock(&rwlock); 
 	
+	std::cout<<"merge..."<<std::endl;
 //	sleep(1);
 //	}
 }
@@ -413,7 +419,8 @@ std::vector<std::pair<std::string, Entry*>> Bitcask::scanEntry(std::vector<std::
 		std::cout<<"iter : "<<*iter<<std::endl;
 		uint32_t file_id = strtoul((*iter).c_str(), NULL, 10);
 
-        while (!file.eof()) {
+        //while (!file.eof()) {
+		while (file.peek() != EOF) {
 			char *bufer;
 		    bufer = new char[24];
             file.read(bufer, 24);
@@ -469,8 +476,9 @@ std::vector<std::pair<std::string, Entry*>> Bitcask::scanEntry(std::vector<std::
 			}
 
 			//std::cout<<"read : "<<file.gcount()<<std::endl;
-			char *keyByte;
-			file.read(keyByte, kSz);
+			//char *keyByte;         // not allocated memory
+			char *keyByte = new char[kSz];
+			file.read(keyByte, kSz);     // __memcpy_avx_unaligned()
 			std::cout<<"key : "<<keyByte<<std::endl;
 		
 		    //uint32_t ttttt = 1234;
