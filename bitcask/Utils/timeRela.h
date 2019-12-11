@@ -12,3 +12,4 @@ std::string getCurrentOfFormat(const char* format);
 std::string getCurrentOfSecond();
 
 uint64_t getCurrentOfMicroSecond();
+//std::string getCurrentOfMicroSecond();

@@ -39,7 +39,7 @@ Bitcask::Bitcask(){
 //    parseHintFiles(existHintFiles);
 
     //get the last file_id
-    uint32_t file_id = getLastFileInfo(existHintFiles);
+    uint64_t file_id = getLastFileInfo(existHintFiles);
 	
     // initial
 	this->activeFile = new struct BcFile();
@@ -88,10 +88,10 @@ std::string Bitcask::get(std::string key) {
 		return "";
 	}
 
-	uint32_t file_id = e->getFileId();
+	uint64_t file_id = e->getFileId();
 	uint64_t file_offset = e->getFileOffset();
     uint32_t value_size = e->getValueSize();
-    uint32_t tstamp = e->getTstamp();
+    uint64_t tstamp = e->getTstamp();
 
 	BcFile *bf = getFileState(file_id);
 	if (bf == NULL) {
@@ -167,7 +167,7 @@ void Bitcask::merge() {
 	std::string path = this->getDirName() + "/" + std::string(tmpfile);
 	struct BcFile *bf = new struct BcFile;
 	BcFiles *bcf = new BcFiles();
-	std::string file_id = getCurrentOfSecond();
+	std::string file_id = std::to_string(getCurrentOfMicroSecond());
     auto file_name = path + "/" + file_id + ".data";
 
     int fd;
@@ -212,7 +212,7 @@ void Bitcask::merge() {
 		if (!e_hint->isEqual(e_hashtable)) {    // false
 			continue;
 		}else {
-			//read value
+			//read value first
 
 			pthread_rwlock_wrlock(&rwlock);
 			Entry *e_hashtable_again = this->hashTable->get(key);
@@ -226,10 +226,10 @@ void Bitcask::merge() {
 				continue;
 			}
 
-			uint32_t file_id_ = e_hint->getFileId();
+			uint64_t file_id_ = e_hint->getFileId();
 	        uint64_t file_offset_ = e_hint->getFileOffset();
             uint32_t value_size_ = e_hint->getValueSize();
-            uint32_t tstamp_ = e_hint->getTstamp();
+            uint64_t tstamp_ = e_hint->getTstamp();
 		    BcFile *bf_ = this->getFileState(file_id_);
 
             std::cout<<"val : "<<value_size_<<std::endl;
@@ -243,7 +243,7 @@ void Bitcask::merge() {
 				close(bf->hintFp);
 				bcf->put_BcFiles(bf, bf->file_id);
 			
-				std::string file_id = getCurrentOfSecond();
+				std::string file_id = std::to_string(getCurrentOfMicroSecond());
 				auto file_name = path + "/" + file_id + ".data";
 				int m_fd;
 				m_fd = open(file_name.c_str(), O_CREAT|O_WRONLY|O_APPEND, S_IRUSR);
@@ -252,7 +252,7 @@ void Bitcask::merge() {
                 }
 				bf->fp = m_fd;
 
-				bf->file_id = strtoul(file_id.c_str(), NULL, 10);
+				bf->file_id = strtoull(file_id.c_str(), NULL, 10);
 				
 				auto file_name_hint = path + "/" + std::to_string(bf->file_id) + ".hint";
 				int m_fd_hint;
@@ -323,11 +323,11 @@ void Bitcask::setActiveFile_fp(int fp) {
 	this->activeFile->fp = fp;
 }
 
-uint32_t Bitcask::getActiveFile_fileId() {
+uint64_t Bitcask::getActiveFile_fileId() {
 	return this->activeFile->file_id;
 }
 
-void Bitcask::setActiveFile_fileId(uint32_t file_id) {
+void Bitcask::setActiveFile_fileId(uint64_t file_id) {
 	this->activeFile->file_id = file_id;
 }
 
@@ -416,13 +416,12 @@ std::vector<std::pair<std::string, Entry*>> Bitcask::scanEntry(std::vector<std::
     //char *buffer;
 	
 	int HintHeaderSize = 24;
-	//int i=0;
 	for (iter=existHintFiles->begin(); iter!=existHintFiles->end();iter++) {
 		std::ifstream file;
 		file.open(this->getDirName() + "/" + *iter, std::iostream::in|std::iostream::binary);
 		std::cout<<"dir name : "<<this->getDirName()<<std::endl;
 		std::cout<<"iter : "<<*iter<<std::endl;
-		uint32_t file_id = strtoul((*iter).c_str(), NULL, 10);
+		uint64_t file_id = strtoull((*iter).c_str(), NULL, 10);
 
         //while (!file.eof()) {
 		while (file.peek() != EOF) {
@@ -497,16 +496,14 @@ std::vector<std::pair<std::string, Entry*>> Bitcask::scanEntry(std::vector<std::
 			char *keyByte = new char[kSz];
 			file.read(keyByte, kSz);     // __memcpy_avx_unaligned()
 			std::cout<<"key : "<<keyByte<<std::endl;
-		
-		                                 //uint32_t ttttt = 1234;		
-			Entry *e = new Entry(file_id, offset, vSz, file_id);
+				
+			Entry *e = new Entry(file_id, offset, vSz, ts);
 			e->setFileId(file_id);
 			e->setFileOffset(offset);
 			e->setValueSize(vSz);
-//			e->setTstamp(ttttt);
+			e->setTstamp(ts);
 
             std::pair<std::string, Entry*> ePair{keyByte, e};
-//			std::cout<<"read : ssss"<<std::endl;
 			//eArray[i++] = ePair;
 			eArray.push_back(ePair);
 		}
@@ -525,7 +522,7 @@ int Bitcask::getLocker() {
 	return this->locker;
 }
 
-BcFile* Bitcask::getFileState(uint32_t file_id) {
+BcFile* Bitcask::getFileState(uint64_t file_id) {
 	// active file
     if (this->getActiveFile_fileId() == file_id) {
 		return this->getActiveFile();

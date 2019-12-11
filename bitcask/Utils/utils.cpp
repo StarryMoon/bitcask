@@ -86,7 +86,7 @@ char* getCrc32(const char* InStr, int len) {
 }
 
 void createWriteableFile(Bitcask *bc) {
-    std::string file_id = getCurrentOfSecond();
+    std::string file_id = std::to_string(getCurrentOfMicroSecond());
     auto file_name = bc->getDirName() + "/" + file_id + ".data";
     int fd;
     fd = open(file_name.c_str(), O_CREAT|O_WRONLY|O_APPEND, S_IRUSR);
@@ -94,7 +94,7 @@ void createWriteableFile(Bitcask *bc) {
         throw std::runtime_error("data file open error.");
     }
     bc->setActiveFile_fp(fd);
-    bc->setActiveFile_fileId(strtoul(file_id.c_str(), NULL, 10));  // string -> uint32_t
+    bc->setActiveFile_fileId(strtoull(file_id.c_str(), NULL, 10));  // string -> uint64_t
   
     return;
 }
@@ -194,9 +194,9 @@ std::vector<std::string>* listDataFiles() {
 	return &files;
 }
 
-uint32_t getLastFileInfo(std::vector<std::string> *existHintFiles) {
+uint64_t getLastFileInfo(std::vector<std::string> *existHintFiles) {
     // get the timestamp of last file
-    uint32_t lastStamp = 0;
+    uint64_t lastStamp = 0;
 /*    std::vector<std::string>::iterator iter;
 	  for (iter=existHintFiles->begin(); iter!=existHintFiles->end(); iter++) {
         std::string str = *iter;
@@ -219,7 +219,7 @@ int lockFile(std::string path) {
     return fd;
 }
 
-void writePID(int fd, uint32_t file_id) {
+void writePID(int fd, uint64_t file_id) {
     std::string str = std::to_string((int)getpid());
     str = str + "\t" + std::to_string(file_id) + ".data";
     const char *ch = str.c_str();

@@ -54,7 +54,7 @@ void HashTable::set(std::string key, Entry *val){
         HashItem *item = table[idx];
 		Entry *tmp;
 		tmp = item->entry;
-		uint32_t tStamp = item->entry->getTstamp();
+		uint64_t tStamp = item->entry->getTstamp();
 		if (tStamp > val->getTstamp()) {
     	    return;
 		}

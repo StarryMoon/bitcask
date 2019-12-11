@@ -8,7 +8,7 @@ class Entry
 	    
         Entry();
 
-		Entry(uint32_t file_id, uint64_t file_offset, uint32_t value_size, uint32_t tstamp) {
+		Entry(uint64_t file_id, uint64_t file_offset, uint32_t value_size, uint64_t tstamp) {
             this->file_id = file_id;
             this->file_offset_ = file_offset;
             this->value_size_ = value_size;
@@ -17,11 +17,11 @@ class Entry
 
         ~Entry();
 
-        uint32_t getFileId() {
+        uint64_t getFileId() {
             return file_id; 
         }
 
-        void setFileId(uint32_t file_id) {
+        void setFileId(uint64_t file_id) {
             this->file_id = file_id; 
         }
 
@@ -41,11 +41,11 @@ class Entry
             this->value_size_ = value_size; 
         }
 
-		uint32_t getTstamp() {
+		uint64_t getTstamp() {
             return tstamp_; 
         }
 
-        void setTstamp(uint32_t tstamp) {
+        void setTstamp(uint64_t tstamp) {
             this->tstamp_ = tstamp; 
         }
 
@@ -91,9 +91,9 @@ class Entry
     private:
         // fileID   :   value_pos    :   value_sz   :tstamp
         //     4    :       8       :       4       :   4
-        uint32_t file_id;
+        uint64_t file_id;
         uint64_t file_offset_;
         uint32_t value_size_;
-        uint32_t tstamp_;
+        uint64_t tstamp_;
 };
 

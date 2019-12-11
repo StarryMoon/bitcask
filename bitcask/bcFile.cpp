@@ -29,7 +29,7 @@
 		pthread_rwlock_destroy(&rwlock);  
 	}
  
-    BcFile* BcFiles::get_BcFiles(uint32_t file_id) {
+    BcFile* BcFiles::get_BcFiles(uint64_t file_id) {
 		pthread_rwlock_rdlock(&rwlock);
         if(this->bfs.count(file_id) > 0) {
             return this->bfs[file_id];
@@ -39,20 +39,20 @@
 	    pthread_rwlock_unlock(&rwlock);
 	}
 
-	void BcFiles::put_BcFiles(BcFile *bcf, uint32_t file_id) {
+	void BcFiles::put_BcFiles(BcFile *bcf, uint64_t file_id) {
 		pthread_rwlock_wrlock(&rwlock);
-        this->bfs.insert(std::pair<uint32_t, BcFile*>(file_id, bcf));
+        this->bfs.insert(std::pair<uint64_t, BcFile*>(file_id, bcf));
 		pthread_rwlock_unlock(&rwlock); 
 	}
 
 	void BcFiles::close_BcFiles() {
 		pthread_rwlock_rdlock(&rwlock);
-        std::map<uint32_t, BcFile*> bcf = this->getBFS();
+        std::map<uint64_t, BcFile*> bcf = this->getBFS();
         if (bcf.size() == 0) {
             return;
 		}
 
-        std::map<uint32_t, BcFile*>::iterator iter;
+        std::map<uint64_t, BcFile*>::iterator iter;
 		iter = bcf.begin();
 		while(iter != bcf.end()) {
 		    BcFile *bf = iter->second;
@@ -63,14 +63,14 @@
 		pthread_rwlock_unlock(&rwlock);
 	}
 
-    void BcFiles::newBcFile(BcFile* bcf, std::ofstream fp, uint32_t file_id, uint64_t file_offset, std::ofstream hintFp) {
+    void BcFiles::newBcFile(BcFile* bcf, std::ofstream fp, uint64_t file_id, uint64_t file_offset, std::ofstream hintFp) {
 //		BcFile bcf = {fp, std::to_string(file_id), file_offset, hintFp};
 //		return &bcf;
         return;
 	}
 
-	void BcFiles::openBcFile(BcFile* bcf, std::string dirName, std::string tStamp) {
-        std::string file_name = dirName + "/" + tStamp + ".data";
+	void BcFiles::openBcFile(BcFile* bcf, std::string dirName, uint64_t tStamp) {
+        std::string file_name = dirName + "/" + std::to_string(tStamp) + ".data";
 		int fd;
         fd = open(file_name.c_str(), O_WRONLY|O_APPEND, S_IRUSR);
         if (fd == -1) {
@@ -113,7 +113,7 @@
 
         // HeaderSize = 16  --> 20
 	    uint64_t valueOffset = bf->file_offset + 20 + kSz;
-	    std::string strData = timestamp + keySize + valueSize + key + value;
+	    std::string strData = std::to_string(ts) + keySize + valueSize + key + value;
         std::cout<<"offset : "<<valueOffset<<std::endl;
 
         char dataHeader[20];
@@ -188,18 +188,19 @@
 		write(bf->hintFp, hintHeader, 24);
 		write(bf->hintFp, key.c_str(), kSz);
 
-        //HeaderSize =16  --> 20
+        //HeaderSize --> 20
 		bf->file_offset = bf->file_offset + 20 + kSz + valueSz;
         
 		std::cout<<"write finishing "<<std::endl;
-        return new Entry(bf->file_id, valueOffset, valueSz, strtoul(timestamp.c_str(), NULL, 10));
+        return new Entry(bf->file_id, valueOffset, valueSz, ts);
 	}
 
     // tombstone : keySize=0, valueSize=0
 	void BcFiles::delBcFile(BcFile *bf, const std::string& key) {
 
 		auto timestamp = getCurrentOfSecond();            // std::string
-	    auto keySize = std::to_string(0);
+	    uint64_t ts = getCurrentOfMicroSecond();
+		auto keySize = std::to_string(0);
 	    auto valueSize = std::to_string(0);  // 0
 	    //auto hashKey = BKDRHash(key.c_str());
 
@@ -224,11 +225,11 @@
 		return;
 	}
    
-    void BcFiles::setBFS(std::map<uint32_t, BcFile*> bfs) {
+    void BcFiles::setBFS(std::map<uint64_t, BcFile*> bfs) {
 		this->bfs = bfs;
 	}
 
-	std::map<uint32_t, BcFile*> BcFiles::getBFS() {
+	std::map<uint64_t, BcFile*> BcFiles::getBFS() {
 		return this->bfs;
 	}
 
