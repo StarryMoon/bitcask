@@ -1,5 +1,4 @@
 // hashtable.cpp
-
 #include "hashTable.h"
 #include <string>
 #include <iostream>
@@ -42,14 +41,7 @@ void HashTable::set(std::string key, Entry *val){
 	int flag = num / 1000;
 
     std::cout<<"hash set idx : "<<idx<<std::endl;
-//	std::cout<<"hash set size : "<<sizeof(table)<<std::endl;
 
-/*	if (idx >= sizeof(table)/sizeof(HashItem)) {
-		throw std::runtime_error("hashtable out of stack error.");
-		table = new HashItem*[1024*1024*1024]();
-		//return;
-	}
-*/
 	pthread_rwlock_wrlock(&rwlock[flag]);
     
 	// hash conflict
@@ -57,7 +49,7 @@ void HashTable::set(std::string key, Entry *val){
         idx = (idx+1) %SIZE;
 	}
 
-    std::cout<<"hash key : "<<std::endl;
+    std::cout<<"hash key "<<std::endl;
 	if (this->table[idx] && this->table[idx]->key == key) {
         HashItem *item = table[idx];
 		Entry *tmp;
@@ -92,7 +84,7 @@ void HashTable::set(std::string key, Entry *val){
 }
     
 Entry* HashTable::get(std::string key){
-	std::cout<<"hash get : "<<std::endl;
+	std::cout<<"hash get "<<std::endl;
 	int num = stoi(key, NULL, 10);
     int idx = num % SIZE;
 	int flag = num / 1000;

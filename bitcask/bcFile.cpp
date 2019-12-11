@@ -88,14 +88,12 @@
 		char *buffer = new char[len]();
 		std::cout<<"read value : "<<strlen(buffer)<<std::endl;
         in.read(buffer, len);      // 128 --> 132
-		int readedytes = in.gcount();
-//		std::cout<<"read : "<<readedytes<<std::endl;
 
 		std::string str = buffer;
 		std::cout<<"read file value : "<<str<<std::endl;
 
 		in.close();
-		if (strlen(buffer) != len) {
+		if (strlen(buffer) != len) {     // a error occured
 			std::cout<<"read value size : "<<strlen(buffer)<<std::endl;
 			return str.substr(0, len-1);
 		}
@@ -139,11 +137,7 @@
 		dataHeader[17] = valueSz >> 16;
 		dataHeader[18] = valueSz >> 8;
 		dataHeader[19] = valueSz;
-//		std::string strDataHeader;
-/*		for (int i=0;i<20;i++) {
-            std::cout<<"h : "<<dataHeader[i]<<std::endl;
-		}
-*/
+
 		//char *ch = "ch";
 		//char ch[1000];
 		//EncodeData(ch, crc32, strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), key, value); 
@@ -187,7 +181,6 @@
 		hintHeader[23] = valueOffset;
 		
 		std::cout<<"ts : "<<ts<<std::endl;
-		std::cout<<"vs : "<<valueSz<<std::endl;
 		
 		//char chHint[1000];
 		//EncodeHint(chHint, strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), valueOffset, key);

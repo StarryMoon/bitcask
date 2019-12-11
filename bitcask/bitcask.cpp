@@ -440,7 +440,6 @@ std::vector<std::pair<std::string, Entry*>> Bitcask::scanEntry(std::vector<std::
 			uint32_t t_high = byte0|byte1|byte2|byte3;
 			std::stringstream ss_high;
 			ss_high<<std::hex<<t_high;
-//			std::cout<<"tssss : "<<ss_high.str()<<std::endl;
 
 			uint32_t byte4 = (unsigned char)(bufer[4]) << 24;
 			uint32_t byte5 = (unsigned char)(bufer[5]) << 16;
@@ -449,29 +448,24 @@ std::vector<std::pair<std::string, Entry*>> Bitcask::scanEntry(std::vector<std::
             uint32_t t_low = byte4|byte5|byte6|byte7;
 			std::stringstream ss_low;
 			ss_low<<std::hex<<t_low;
-//			std::cout<<"tssss : "<<ss_low.str()<<std::endl;
             
 			std::string t_tmp = ss_high.str() + ss_low.str();
-//			std::cout<<"tssss : "<<t_tmp<<std::endl;
 			std::stringstream ss;
 			ss.str(t_tmp);
 			uint64_t ts;
 			ss>>std::hex>>ts;
-//			std::cout<<"ttttts : "<<ts<<std::endl;
 
 			uint32_t b0 = bufer[8] << 24;
 			uint32_t b1 = bufer[9] << 16;
 			uint32_t b2 = bufer[10] << 8;
 			uint32_t b3 = bufer[11];
 			uint32_t kSz = b0|b1|b2|b3;
-//			std::cout<<"ksz : "<<kSz<<std::endl;
 
 			uint32_t v0 = (unsigned char)(bufer[12]) << 24;
 			uint32_t v1 = (unsigned char)(bufer[13]) << 16;
 			uint32_t v2 = (unsigned char)(bufer[14]) << 8;
 			uint32_t v3 = (unsigned char)(bufer[15]);
 			uint32_t vSz = v0|v1|v2|v3;
-//			std::cout<<"vsz : "<<vSz<<std::endl;
 
 			uint32_t offset_0 = (unsigned char)(bufer[16]) << 24;
 			uint32_t offset_1 = (unsigned char)(bufer[17]) << 16;
@@ -490,13 +484,10 @@ std::vector<std::pair<std::string, Entry*>> Bitcask::scanEntry(std::vector<std::
 			ss_offset_low<<std::hex<<offset_low;
 
 			std::string offset_tmp = ss_offset_high.str() + ss_offset_low.str();
-//			std::cout<<"tssss : "<<t_tmp<<std::endl;
 			std::stringstream ss_offset;
 			ss_offset.str(offset_tmp);
 			uint64_t offset;
 			ss_offset>>std::hex>>offset;
-//			std::cout<<"off : "<<offset<<std::endl;
-
 
 			if (vSz == 0) {
 				continue;
@@ -507,8 +498,7 @@ std::vector<std::pair<std::string, Entry*>> Bitcask::scanEntry(std::vector<std::
 			file.read(keyByte, kSz);     // __memcpy_avx_unaligned()
 			std::cout<<"key : "<<keyByte<<std::endl;
 		
-		    //uint32_t ttttt = 1234;
-			
+		                                 //uint32_t ttttt = 1234;		
 			Entry *e = new Entry(file_id, offset, vSz, file_id);
 			e->setFileId(file_id);
 			e->setFileOffset(offset);

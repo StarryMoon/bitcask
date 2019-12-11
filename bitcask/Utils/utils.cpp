@@ -159,9 +159,6 @@ void scanHintFiles(std::vector<std::string> *existHintFiles) {
     }
  
     closedir(dir);
-
-//	return &files;
-//  return NULL; 
 }
 
 std::vector<std::string>* listDataFiles() {
