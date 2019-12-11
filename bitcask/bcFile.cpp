@@ -86,8 +86,8 @@
         in.seekg(offset, std::iostream::beg);
 
 		char *buffer = new char[len]();
-		std::cout<<"read value : "<<strlen(buffer)<<std::endl;
-        in.read(buffer, len);      // 128 --> 132
+//		std::cout<<"read value : "<<strlen(buffer)<<std::endl;
+        in.read(buffer, len);      // 128 --> ??
 
 		std::string str = buffer;
 		std::cout<<"read file value : "<<str<<std::endl;

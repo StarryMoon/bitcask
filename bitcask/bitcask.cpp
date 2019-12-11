@@ -152,11 +152,19 @@ void Bitcask::fold(void (*f)(const std::string& key)) {
 }
 
 void Bitcask::merge() {
-	usleep(1000000);
+	usleep(100);
 //    sleep(1);
 //	while(true) {
 	// temporary merged dir
     std::cout<<"merge"<<std::endl;
+
+    std::vector<std::string> *existHintFiles = new std::vector<std::string>();
+	scanHintFiles(existHintFiles);
+	std::vector<std::pair<std::string, Entry*>> eArray;
+    eArray = scanEntry(existHintFiles);
+	std::cout<<"scan ending..."<<std::endl;
+    std::cout<<"array size()..."<<eArray.size()<<std::endl;
+
     char tmpfile[] = "temp-merge";
 	std::string command = "mkdir -p " + this->getTestPath() + "/" + tmpfile;
 	system(command.c_str());
@@ -164,7 +172,8 @@ void Bitcask::merge() {
 	// path = testPath + std::string(tmpfile)
 	// BcFiles *bcf;         readonly files
 	// BcFile *activeFile;   data/hint file
-	std::string path = this->getDirName() + "/" + std::string(tmpfile);
+	//std::string path = this->getDirName() + "/" + std::string(tmpfile);
+	std::string path = this->getDirName();
 	struct BcFile *bf = new struct BcFile;
 	BcFiles *bcf = new BcFiles();
 	std::string file_id = std::to_string(getCurrentOfMicroSecond());
@@ -177,7 +186,7 @@ void Bitcask::merge() {
     }
 	
     bf->fp = fd;
-    bf->file_id = strtoul(file_id.c_str(), NULL, 10);
+    bf->file_id = strtoull(file_id.c_str(), NULL, 10);
 
 	auto file_name_hint = path + "/" + std::to_string(bf->file_id) + ".hint";
 	int fd_hint;
@@ -188,15 +197,9 @@ void Bitcask::merge() {
     bf->hintFp = fd_hint;
    
 	bf->file_offset = 0;
-    std::vector<std::string> *existHintFiles = new std::vector<std::string>();
-	scanHintFiles(existHintFiles);
-	std::vector<std::pair<std::string, Entry*>> eArray;
-    eArray = scanEntry(existHintFiles);
-    std::vector<std::pair<std::string, Entry*>>::iterator iter;
-	
-	std::cout<<"scan ending..."<<std::endl;
-    std::cout<<"array size()..."<<eArray.size()<<std::endl;
 
+
+    std::vector<std::pair<std::string, Entry*>>::iterator iter;
     for(iter = eArray.begin(); iter != eArray.end(); iter++) {
 		std::string key = iter->first;
 		std::cout<<"insert key : "<<key<<std::endl;
@@ -284,6 +287,25 @@ void Bitcask::merge() {
 	delete(bf);
 	delete(bcf);
 	//pthread_rwlock_unlock(&rwlock); 
+
+	// delete old files
+	//std::vector<std::string> *existHintFiles = new std::vector<std::string>();
+	std::vector<std::string>::iterator iter_delete_hint;
+	std::cout<<"entry : "<<existHintFiles->size()<<std::endl;
+	for (iter_delete_hint=existHintFiles->begin(); iter_delete_hint!=existHintFiles->end(); iter_delete_hint++) {
+        uint64_t remove_file_id = strtoull((*iter_delete_hint).c_str(), NULL, 10);
+		std::cout<<"file name : "<<remove_file_id<<std::endl;
+		std::string path = this->getDirName() + "/";
+		std::cout<<"dir name : "<<path<<std::endl;
+
+	    //std::string command = "rm -rf " + path;
+		std::string delete_data_command = "rm -f " + path + std::to_string(remove_file_id) + ".data" ;
+//		std::cout<<"cmd : "<< delete_data_command<<std::endl;
+	    system(delete_data_command.c_str());
+		std::string delete_hint_command = "rm -f " + path + std::to_string(remove_file_id) + ".hint" ;
+	    system(delete_hint_command.c_str());
+	}
+
 	
 	std::cout<<"merge..."<<std::endl;
 //	sleep(1);

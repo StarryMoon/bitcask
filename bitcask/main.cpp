@@ -14,7 +14,7 @@
 void TestPut() {
 	std::cout<<"TestPut()"<<std::endl;
 	static Bitcask bc;
-	const int circleTimes = 15000;
+	const int circleTimes = 10000;
     std::vector<int> keyVector;
 	int overwriteRatio = 50;   // --> 50%
 	for (int i=0; i< circleTimes; i++) {
@@ -51,8 +51,10 @@ void TestPut() {
 	}
 	//bc.get(std::to_string(9));
 */
-    std::cout<<"--------------merge----------------"<<std::endl;
+    std::cout<<"--------------merge 1--------------"<<std::endl;
     bc.merge();
+	std::cout<<"--------------merge 2--------------"<<std::endl;
+	bc.merge();
 //    delete(cq);
 	return;
 }
