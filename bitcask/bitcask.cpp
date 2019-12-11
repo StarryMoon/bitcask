@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <stdlib.h>
 #include "messageQ.h"
+#include <sstream>
 
 Bitcask::Bitcask(){
 
@@ -198,7 +199,7 @@ void Bitcask::merge() {
 
     for(iter = eArray.begin(); iter != eArray.end(); iter++) {
 		std::string key = iter->first;
-		std::cout<<"key : "<<key<<std::endl;
+		std::cout<<"insert key : "<<key<<std::endl;
 		Entry *e_hint = iter->second;
 		pthread_rwlock_rdlock(&rwlock);
 		Entry *e_hashtable = this->hashTable->get(key);
@@ -208,9 +209,11 @@ void Bitcask::merge() {
 		}
 		pthread_rwlock_unlock(&rwlock);
  
-		if (!e_hint->isEqual(e_hashtable)) {
+		if (!e_hint->isEqual(e_hashtable)) {    // false
 			continue;
 		}else {
+			//read value
+
 			pthread_rwlock_wrlock(&rwlock);
 			Entry *e_hashtable_again = this->hashTable->get(key);
 			if (e_hashtable_again == NULL) {
@@ -229,8 +232,10 @@ void Bitcask::merge() {
             uint32_t tstamp_ = e_hint->getTstamp();
 		    BcFile *bf_ = this->getFileState(file_id_);
 
+            std::cout<<"val : "<<value_size_<<std::endl;
             std::string value = this->getBCF()->readBcFile(bf_, this->getDirName(), file_offset_, value_size_);
 			std::cout<<"merge value : "<<value<<std::endl;
+			std::cout<<"merge value size : "<<value.size()<<std::endl;
 			auto offset = bf->file_offset;
 			auto logSize = this->getLogSize();
 			if (offset >= logSize) {
@@ -424,58 +429,79 @@ std::vector<std::pair<std::string, Entry*>> Bitcask::scanEntry(std::vector<std::
 			char *bufer;
 		    bufer = new char[24];
             file.read(bufer, 24);
-			int readedytes = file.gcount();
-			std::cout<<"read : "<<readedytes<<std::endl;
+//			int readedytes = file.gcount();
+//			std::cout<<"read : "<<readedytes<<std::endl;
 
-            uint64_t byte0 = (unsigned char)(bufer[0]) << 56;
-			uint64_t byte1 = (unsigned char)(bufer[1]) << 48;
-			uint64_t byte2 = (unsigned char)(bufer[2]) << 40;
-			uint64_t byte3 = (unsigned char)(bufer[3]) << 32;
-			uint64_t byte4 = (unsigned char)(bufer[4]) << 24;
-			uint64_t byte5 = (unsigned char)(bufer[5]) << 16;
-			uint64_t byte6 = (unsigned char)(bufer[6]) << 8;
-			uint64_t byte7 = (unsigned char)(bufer[7]);
-            uint64_t ts = byte0|byte1|byte2|byte3|byte4|byte5|byte6|byte7;
+            // shift count >= width of type
+            uint32_t byte0 = (unsigned char)(bufer[0]) << 24;
+			uint32_t byte1 = (unsigned char)(bufer[1]) << 16;
+			uint32_t byte2 = (unsigned char)(bufer[2]) << 8;
+			uint32_t byte3 = (unsigned char)(bufer[3]);
+			uint32_t t_high = byte0|byte1|byte2|byte3;
+			std::stringstream ss_high;
+			ss_high<<std::hex<<t_high;
+//			std::cout<<"tssss : "<<ss_high.str()<<std::endl;
 
-			std::cout<<"ts : "<<ts<<std::endl;
+			uint32_t byte4 = (unsigned char)(bufer[4]) << 24;
+			uint32_t byte5 = (unsigned char)(bufer[5]) << 16;
+			uint32_t byte6 = (unsigned char)(bufer[6]) << 8;
+			uint32_t byte7 = (unsigned char)(bufer[7]);
+            uint32_t t_low = byte4|byte5|byte6|byte7;
+			std::stringstream ss_low;
+			ss_low<<std::hex<<t_low;
+//			std::cout<<"tssss : "<<ss_low.str()<<std::endl;
+            
+			std::string t_tmp = ss_high.str() + ss_low.str();
+//			std::cout<<"tssss : "<<t_tmp<<std::endl;
+			std::stringstream ss;
+			ss.str(t_tmp);
+			uint64_t ts;
+			ss>>std::hex>>ts;
+//			std::cout<<"ttttts : "<<ts<<std::endl;
 
 			uint32_t b0 = bufer[8] << 24;
 			uint32_t b1 = bufer[9] << 16;
 			uint32_t b2 = bufer[10] << 8;
 			uint32_t b3 = bufer[11];
 			uint32_t kSz = b0|b1|b2|b3;
-			std::cout<<"ksz : "<<kSz<<std::endl;
+//			std::cout<<"ksz : "<<kSz<<std::endl;
 
 			uint32_t v0 = (unsigned char)(bufer[12]) << 24;
 			uint32_t v1 = (unsigned char)(bufer[13]) << 16;
 			uint32_t v2 = (unsigned char)(bufer[14]) << 8;
 			uint32_t v3 = (unsigned char)(bufer[15]);
 			uint32_t vSz = v0|v1|v2|v3;
-			std::cout<<"vsz : "<<vSz<<std::endl;
+//			std::cout<<"vsz : "<<vSz<<std::endl;
 
-			uint64_t f0 = (unsigned char)(bufer[16]) << 56;
-			uint64_t f1 = (unsigned char)(bufer[17]) << 48;
-			uint64_t f2 = (unsigned char)(bufer[18]) << 40;
-			uint64_t f3 = (unsigned char)(bufer[19]) << 32;
-			uint64_t f4 = (unsigned char)(bufer[20]) << 24;
-			uint64_t f5 = (unsigned char)(bufer[21]) << 16;
-			uint64_t f6 = (unsigned char)(bufer[22]) << 8;
-			uint64_t f7 = (unsigned char)(bufer[23]);
-            uint64_t offset = f0|f1|f2|f3|f4|f5|f6|f7;
-			std::cout<<"off : "<<offset<<std::endl;
+			uint32_t offset_0 = (unsigned char)(bufer[16]) << 24;
+			uint32_t offset_1 = (unsigned char)(bufer[17]) << 16;
+			uint32_t offset_2 = (unsigned char)(bufer[18]) << 8;
+			uint32_t offset_3 = (unsigned char)(bufer[19]);
+			uint32_t offset_high = offset_0|offset_1|offset_2|offset_3;
+			std::stringstream ss_offset_high;
+			ss_offset_high<<std::hex<<offset_high;
 
-/*
-			char buffer[24];
-			file.read(buffer, 24);
-			int readedBytes = file.gcount();
-			std::cout<<"read : "<<readedBytes<<std::endl;
-			std::cout<<"buffer : "<<buffer<<std::endl;
-*/
+			uint32_t offset_4 = (unsigned char)(bufer[20]) << 24;
+			uint32_t offset_5 = (unsigned char)(bufer[21]) << 16;
+			uint32_t offset_6 = (unsigned char)(bufer[22]) << 8;
+			uint32_t offset_7 = (unsigned char)(bufer[23]);
+            uint64_t offset_low = offset_4|offset_5|offset_6|offset_7;
+			std::stringstream ss_offset_low;
+			ss_offset_low<<std::hex<<offset_low;
+
+			std::string offset_tmp = ss_offset_high.str() + ss_offset_low.str();
+//			std::cout<<"tssss : "<<t_tmp<<std::endl;
+			std::stringstream ss_offset;
+			ss_offset.str(offset_tmp);
+			uint64_t offset;
+			ss_offset>>std::hex>>offset;
+//			std::cout<<"off : "<<offset<<std::endl;
+
+
 			if (vSz == 0) {
 				continue;
 			}
 
-			//std::cout<<"read : "<<file.gcount()<<std::endl;
 			//char *keyByte;         // not allocated memory
 			char *keyByte = new char[kSz];
 			file.read(keyByte, kSz);     // __memcpy_avx_unaligned()
@@ -484,19 +510,15 @@ std::vector<std::pair<std::string, Entry*>> Bitcask::scanEntry(std::vector<std::
 		    //uint32_t ttttt = 1234;
 			
 			Entry *e = new Entry(file_id, offset, vSz, file_id);
-            std::cout<<"read : ppppp"<<std::endl;
 			e->setFileId(file_id);
-			std::cout<<"read : ppppp"<<std::endl;
 			e->setFileOffset(offset);
 			e->setValueSize(vSz);
 //			e->setTstamp(ttttt);
 
-//std::cout<<"read : ssss"<<std::endl;
             std::pair<std::string, Entry*> ePair{keyByte, e};
-			std::cout<<"read : ssss"<<std::endl;
+//			std::cout<<"read : ssss"<<std::endl;
 			//eArray[i++] = ePair;
 			eArray.push_back(ePair);
-			//std::cout<<"read : sspppppss  "<<i<<std::endl;
 		}
 		file.close();	
 	}

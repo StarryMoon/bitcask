@@ -30,18 +30,35 @@ HashTable::~HashTable(){
 
 void HashTable::set(std::string key, Entry *val){
 	
+	std::cout<<"hash set : "<<std::endl;
+
+	if (table == NULL) {
+		throw std::runtime_error("hashtable set error.");
+        return; 
+	}
+
 	int num = stoi(key, NULL, 10);
     int idx = num % SIZE;
 	int flag = num / 1000;
 
+    std::cout<<"hash set idx : "<<idx<<std::endl;
+//	std::cout<<"hash set size : "<<sizeof(table)<<std::endl;
+
+/*	if (idx >= sizeof(table)/sizeof(HashItem)) {
+		throw std::runtime_error("hashtable out of stack error.");
+		table = new HashItem*[1024*1024*1024]();
+		//return;
+	}
+*/
 	pthread_rwlock_wrlock(&rwlock[flag]);
     
 	// hash conflict
-	while (table[idx] && table[idx]->key != key) {
-        idx = (idx) %SIZE;
+	while (this->table[idx] && (table[idx]->key != key)) {
+        idx = (idx+1) %SIZE;
 	}
 
-/*	if (table[idx]->key == key) {
+    std::cout<<"hash key : "<<std::endl;
+	if (this->table[idx] && this->table[idx]->key == key) {
         HashItem *item = table[idx];
 		Entry *tmp;
 		tmp = item->entry;
@@ -50,7 +67,7 @@ void HashTable::set(std::string key, Entry *val){
     	    return;
 		}
 	}
-*/	
+	
     if(table[idx]) {
 		delete table[idx];
 		//pthread_rwlock_unlock(&rwlock); 
@@ -60,16 +77,6 @@ void HashTable::set(std::string key, Entry *val){
         table[idx] = NULL;
 		pthread_rwlock_unlock(&rwlock[flag]); 
 		return;     
-	}
-
-    if (table == NULL) {
-		throw std::runtime_error("hashtable set error.");
-        return; 
-	}
-
-	if (idx > sizeof(table)/sizeof(HashItem)) {
-		table = new HashItem*[1024*1024*1024];
-		//return;
 	}
 
 	HashItem *it = new HashItem();
@@ -93,7 +100,7 @@ Entry* HashTable::get(std::string key){
 	
     //hash conflict
 	while (table[idx] && table[idx]->key != key) {
-        idx = (idx) %SIZE;
+        idx = (idx+1) %SIZE;
 	}
 
 	HashItem *it = table[idx];

@@ -14,7 +14,7 @@
 void TestPut() {
 	std::cout<<"TestPut()"<<std::endl;
 	static Bitcask bc;
-	const int circleTimes = 10000;
+	const int circleTimes = 15000;
     std::vector<int> keyVector;
 	int overwriteRatio = 50;   // --> 50%
 	for (int i=0; i< circleTimes; i++) {
@@ -31,7 +31,7 @@ void TestPut() {
 	gc_thread.join();
 */
     
-
+    std::cout<<"--------------put----------------"<<std::endl;
 	for (int i = 0; i < circleTimes; i++) {
 		std::cout<<"i: "<<i<<std::endl;
 		auto key = keyVector[i];
@@ -41,10 +41,18 @@ void TestPut() {
 		std::cout<<"value : "<<value<<std::endl;
 		//break;
 	}
-
+/*    std::cout<<"--------------get----------------"<<std::endl;
+    for (int i = 0; i < circleTimes; i++) {
+		auto key = keyVector[i];
+		//auto key = 9;
+		auto value = bc.get(std::to_string(key));
+		std::cout<<"value : "<<value<<std::endl;
+		//break;
+	}
 	//bc.get(std::to_string(9));
-
-    //bc.merge();
+*/
+    std::cout<<"--------------merge----------------"<<std::endl;
+    bc.merge();
 //    delete(cq);
 	return;
 }

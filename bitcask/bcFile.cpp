@@ -85,16 +85,20 @@
 		in.open(dirName + "/" + std::to_string(bf->file_id) + ".data", std::iostream::in);
         in.seekg(offset, std::iostream::beg);
 
-		std::cout<<"read file off : "<<offset<<std::endl;
-
-		char *buffer;
-		buffer = new char[len];
-        in.read(buffer, len);
-        in.close();
+		char *buffer = new char[len]();
+		std::cout<<"read value : "<<strlen(buffer)<<std::endl;
+        in.read(buffer, len);      // 128 --> 132
+		int readedytes = in.gcount();
+//		std::cout<<"read : "<<readedytes<<std::endl;
 
 		std::string str = buffer;
-//		std::cout<<"read file value : "<<buffer<<std::endl;
-		
+		std::cout<<"read file value : "<<str<<std::endl;
+
+		in.close();
+		if (strlen(buffer) != len) {
+			std::cout<<"read value size : "<<strlen(buffer)<<std::endl;
+			return str.substr(0, len-1);
+		}
 		return str;
 	}
 
@@ -143,8 +147,6 @@
 		//char *ch = "ch";
 		//char ch[1000];
 		//EncodeData(ch, crc32, strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), key, value); 
-		
-		
 		
 		//write(bf->fp, ch, std::to_string(ch).size());
         //strData = crc32 + strData;
