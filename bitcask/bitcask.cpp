@@ -108,12 +108,12 @@ std::string Bitcask::get(std::string key) {
 	return value;
 }
 
-void Bitcask::put(const std::string& key, const std::string& value) {
+void Bitcask::put(const std::string& key, const std::string& value, MessageQueue *cq) {
     pthread_rwlock_wrlock(&rwlock);
 
 	checkActiveFile(this);
 
-	Entry *e = this->getBCF()->writeBcFile(this->getActiveFile(), key, value);
+	Entry *e = this->getBCF()->writeBcFile(this->getActiveFile(), key, value, cq);
 	
 	pthread_rwlock_unlock(&rwlock); 
 
@@ -165,9 +165,9 @@ void Bitcask::merge() {
 	std::cout<<"scan ending..."<<std::endl;
     std::cout<<"array size()..."<<eArray.size()<<std::endl;
 
-    char tmpfile[] = "temp-merge";
-	std::string command = "mkdir -p " + this->getTestPath() + "/" + tmpfile;
-	system(command.c_str());
+//  char tmpfile[] = "temp-merge";
+//	std::string command = "mkdir -p " + this->getTestPath() + "/" + tmpfile;
+//	system(command.c_str());
 
 	// path = testPath + std::string(tmpfile)
 	// BcFiles *bcf;         readonly files
@@ -266,7 +266,8 @@ void Bitcask::merge() {
                 bf->hintFp = m_fd_hint;
             }
 
-			Entry *entry = bcf->writeBcFile(bf, key, value);
+            MessageQueue *cq = NULL;
+			Entry *entry = bcf->writeBcFile(bf, key, value, cq);
             pthread_rwlock_unlock(&rwlock);
 
             std::cout<<"merge hash : "<<std::endl;
@@ -296,14 +297,17 @@ void Bitcask::merge() {
         uint64_t remove_file_id = strtoull((*iter_delete_hint).c_str(), NULL, 10);
 		std::cout<<"file name : "<<remove_file_id<<std::endl;
 		std::string path = this->getDirName() + "/";
-		std::cout<<"dir name : "<<path<<std::endl;
+//		std::cout<<"dir name : "<<path<<std::endl;
 
+std::cout<<"not delete..."<<std::endl;
+/*
 	    //std::string command = "rm -rf " + path;
 		std::string delete_data_command = "rm -f " + path + std::to_string(remove_file_id) + ".data" ;
 //		std::cout<<"cmd : "<< delete_data_command<<std::endl;
 	    system(delete_data_command.c_str());
 		std::string delete_hint_command = "rm -f " + path + std::to_string(remove_file_id) + ".hint" ;
 	    system(delete_hint_command.c_str());
+*/		
 	}
 
 	

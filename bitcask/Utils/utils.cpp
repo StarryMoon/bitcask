@@ -116,6 +116,7 @@ void checkActiveFile(Bitcask *bc) {
     uint64_t offset = bc->getActiveFile_offset();
     auto logSize = bc->getLogSize();
     if (offset >= logSize) {
+        // usleep(1000); 1ms for messagequeue to writing
         close(bc->getActiveFile_fp());
         close(bc->getActiveFile_hintFp());
         

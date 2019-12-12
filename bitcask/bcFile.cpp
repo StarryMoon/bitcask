@@ -90,17 +90,24 @@
         in.read(buffer, len);      // 128 --> ??
 
 		std::string str = buffer;
-		std::cout<<"read file value : "<<str<<std::endl;
+		std::cout<<"read file value str : "<<str<<std::endl;
+	
+	    // strlen <--> '\0'   a error occured
+		if (strlen(buffer) != len) {     
+		    //std::cout<<"read value len : "<<len<<std::endl;
+			std::streamsize s_size =  in.gcount();
+			std::cout<<"read s_size : "<<s_size<<std::endl;
 
-		in.close();
-		if (strlen(buffer) != len) {     // a error occured
+			// strlen : '\0'
 			std::cout<<"read value size : "<<strlen(buffer)<<std::endl;
-			return str.substr(0, len-1);
+			return str.substr(0, len);
 		}
+		in.close();
+
 		return str;
 	}
 
-	Entry* BcFiles::writeBcFile(BcFile *bf, const std::string& key, const std::string& value) {
+	Entry* BcFiles::writeBcFile(BcFile *bf, const std::string& key, const std::string& value, MessageQueue *cq) {
 
 		auto timestamp = getCurrentOfSecond();
 		uint64_t ts = getCurrentOfMicroSecond();
@@ -117,7 +124,8 @@
         std::cout<<"offset : "<<valueOffset<<std::endl;
 
         char dataHeader[20];
-		char* crc32 = getCrc32(strData.c_str(), strData.size());
+		char* crc32 = new char[4](); 
+		crc32 = getCrc32(strData.c_str(), strData.size());
 //		std::cout<<"crc32 : "<<crc32<<std::endl;
 		memcpy(dataHeader, crc32, 4);
 		//EncodeDataHeader(dataHeader, ts, kSz, valueSz);
@@ -190,8 +198,17 @@
 
         //HeaderSize --> 20
 		bf->file_offset = bf->file_offset + 20 + kSz + valueSz;
-        
 		std::cout<<"write finishing "<<std::endl;
+
+		std::cout<<"send data to MQ."<<std::endl;
+        /*
+		   if (cq != NULL) {
+			   Task *pTask = new Task(bf->fp, bf->hintFp, 0, 0, (std::to_string(dataHeader)+key+value).c_str(), (std::to_string(hintHeader)+key).c_str());
+               cq.PushTask( pTask );
+		   }
+ 	
+		*/
+
         return new Entry(bf->file_id, valueOffset, valueSz, ts);
 	}
 
