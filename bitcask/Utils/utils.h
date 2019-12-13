@@ -46,12 +46,12 @@ void createWriteableFile(Bitcask *bc);
 
 void createHintFile(Bitcask *bc); 
 
-std::vector<std::string>* scanHintFiles();
+void scanHintFiles(std::vector<std::string>*);
 
 std::vector<std::string>* listDataFiles();
 
-uint32_t getLastFileInfo(std::vector<std::string>*);
+uint64_t getLastFileInfo(std::vector<std::string>*);
 
 int lockFile(std::string path);
 
-void writePID(int fd, uint32_t file_id);
+void writePID(int fd, uint64_t file_id);

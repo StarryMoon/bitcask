@@ -72,22 +72,25 @@ char* getCrc32(const char* InStr, int len) {
 
     for(int i=0; i<len; i++) {        
         Crc = (Crc >> 8) ^ Crc32Table[(Crc & 0xFF) ^ InStr[i]];      
-    }   
+    }
      
     Crc ^= 0xFFFFFFFF;  
 
-    char buf[4];
+    static char buf[4];
     buf[0] = Crc >> 24;
     buf[1] = Crc >> 16;
     buf[2] = Crc >> 8;
     buf[3] = Crc;
 
-    //uint32_t crc32 = strtoul(buf, NULL, 10);
-    return buf;    
+    std::cout<<"crc32 size : "<<strlen(buf)<<std::endl;
+    std::cout<<"crc32 : "<<buf<<std::endl;
+
+    // return std::to_string(Crc);
+    return buf;  
 }
 
 void createWriteableFile(Bitcask *bc) {
-    std::string file_id = getCurrentOfSecond();
+    std::string file_id = std::to_string(getCurrentOfMicroSecond());
     auto file_name = bc->getDirName() + "/" + file_id + ".data";
     int fd;
     fd = open(file_name.c_str(), O_CREAT|O_WRONLY|O_APPEND, S_IRUSR);
@@ -95,7 +98,7 @@ void createWriteableFile(Bitcask *bc) {
         throw std::runtime_error("data file open error.");
     }
     bc->setActiveFile_fp(fd);
-    bc->setActiveFile_fileId(strtoul(file_id.c_str(), NULL, 10));  // string -> uint32_t
+    bc->setActiveFile_fileId(strtoull(file_id.c_str(), NULL, 10));  // string -> uint64_t
   
     return;
 }
@@ -116,46 +119,42 @@ void createHintFile(Bitcask *bc) {
 void checkActiveFile(Bitcask *bc) {
     uint64_t offset = bc->getActiveFile_offset();
     auto logSize = bc->getLogSize();
-    std::cout<<"check"<<std::endl;
     if (offset >= logSize) {
-        std::cout<<"offseeet : "<<offset<<std::endl;
+        // usleep(1000); 1ms for messagequeue to writing
         close(bc->getActiveFile_fp());
         close(bc->getActiveFile_hintFp());
         
-        std::cout<<"put bcfiles"<<std::endl;
         // put
         bc->getBCF()->put_BcFiles(bc->getActiveFile(), bc->getActiveFile_fileId());
 
         // data file
-        //bc->getActiveFile()->fp = createWriteableFile(bc);
         createWriteableFile(bc);
 
         // hint file
-        // bc->activeFile->hintFp = createHintFile(bc);
         createHintFile(bc);
         bc->setActiveFile_offset(0);   
     }
 }
 
-std::vector<std::string>* scanHintFiles() {
-    std::cout<<"scanHIntFiles"<<std::endl;
+void scanHintFiles(std::vector<std::string> *existHintFiles) {
     struct dirent *ptr;    
     DIR *dir;
-    std::string PATH = "./bitcaskTest";
+    std::string PATH = "./bitcaskTest";   // bc.dirName
     dir = opendir(PATH.c_str());
     std::vector<std::string> files;
 
     while((ptr=readdir(dir))!=NULL) {
  
         //skip '.'/'..'
-        if(ptr->d_name[0] == '.')
+        if(ptr->d_name[0] == '.') {
             continue;
-        //cout << ptr->d_name << endl;
+        }
         std::string str = ".hint";
         const char *show;
         show = strstr(std::string(ptr->d_name).c_str(), str.c_str());
         if(show != NULL) {
             files.push_back(ptr->d_name);
+            existHintFiles->push_back(ptr->d_name);
         }  
     }
     
@@ -165,10 +164,6 @@ std::vector<std::string>* scanHintFiles() {
     }
  
     closedir(dir);
-
-	return &files;
- 
-  return NULL; 
 }
 
 std::vector<std::string>* listDataFiles() {
@@ -204,9 +199,9 @@ std::vector<std::string>* listDataFiles() {
 	return &files;
 }
 
-uint32_t getLastFileInfo(std::vector<std::string> *existHintFiles) {
+uint64_t getLastFileInfo(std::vector<std::string> *existHintFiles) {
     // get the timestamp of last file
-    uint32_t lastStamp = 0;
+    uint64_t lastStamp = 0;
 /*    std::vector<std::string>::iterator iter;
 	  for (iter=existHintFiles->begin(); iter!=existHintFiles->end(); iter++) {
         std::string str = *iter;
@@ -229,7 +224,7 @@ int lockFile(std::string path) {
     return fd;
 }
 
-void writePID(int fd, uint32_t file_id) {
+void writePID(int fd, uint64_t file_id) {
     std::string str = std::to_string((int)getpid());
     str = str + "\t" + std::to_string(file_id) + ".data";
     const char *ch = str.c_str();

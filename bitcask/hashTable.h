@@ -3,7 +3,6 @@
 //#pragma comment(linker,"/SECTION:.rdata,RW") 
 
 //hashtable
-//#include <map>  // deduplicate
 
 #include <string>
 #include "entry.h"
@@ -31,7 +30,7 @@ class HashTable
     private:
         static const int SIZE = 1024*1024*1024;
         HashItem ** table;                 // table[i] = HashItem();
-        pthread_rwlock_t rwlock;  
-//		pthread_rwlock_t rwlock[10000];    // range lock
+//        pthread_rwlock_t rwlock;  
+		pthread_rwlock_t rwlock[10000];    // range lock
 };
 

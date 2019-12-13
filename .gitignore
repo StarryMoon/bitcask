@@ -3,3 +3,4 @@ a.out
 *.hint
 .vscode
 a.out.dSYM
+.DS_Store

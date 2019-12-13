@@ -27,8 +27,8 @@ public:
 	BcFile* getActiveFile();
 	int getActiveFile_fp();
     void setActiveFile_fp(int fp);
-	uint32_t getActiveFile_fileId();
-    void setActiveFile_fileId(uint32_t file_id);
+	uint64_t getActiveFile_fileId();
+    void setActiveFile_fileId(uint64_t file_id);
 	uint64_t getActiveFile_offset();
 	void setActiveFile_offset(uint64_t offset);
     int getActiveFile_hintFp();
@@ -53,9 +53,9 @@ public:
 
     void parseHintFiles(std::vector<std::string>*);
 
-    void scanEntry(std::vector<std::pair<std::string, Entry*>>, std::vector<std::string>*);
+    std::vector<std::pair<std::string, Entry*>> scanEntry(std::vector<std::string>*);
 
-	BcFile* getFileState(uint32_t file_id);
+	BcFile* getFileState(uint64_t file_id);
 
 private:
 
@@ -72,10 +72,7 @@ private:
 
     // map: insert --> return directly/not overlap
 	// [key] = value  --> overlap
-    // std::map<std::string, Entry*> hashTable;
 	// vector   key->file_info   duplicate items exist   
 	
 	HashTable *hashTable;
-
-	
 };

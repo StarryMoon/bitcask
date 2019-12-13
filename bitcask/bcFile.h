@@ -22,9 +22,12 @@
 
 struct BcFile {
 	int fp;
-	uint32_t file_id;
+	uint64_t file_id;
 	uint64_t file_offset;
 	int hintFp;
+	//std::ofstream *cfp;
+	//std::ofstream *cHintFP;
+	uint64_t file_id_;  // 8 bytes
 };
 
 class BcFiles 
@@ -34,15 +37,15 @@ public:
 
 	~BcFiles();
  
-    BcFile* get_BcFiles(uint32_t file_id);
+    BcFile* get_BcFiles(uint64_t file_id);
 
-	void put_BcFiles(BcFile *bcf, uint32_t file_id);
+	void put_BcFiles(BcFile *bcf, uint64_t file_id);
 
 	void close_BcFiles();
 
-	void newBcFile(BcFile* bcf, std::ofstream fp, uint32_t file_id, uint64_t file_offset, std::ofstream hintFp); 
+	void newBcFile(BcFile* bcf, std::ofstream fp, uint64_t file_id, uint64_t file_offset, std::ofstream hintFp); 
 
-	void openBcFile(BcFile* bcf, std::string dirName, std::string tStamp);
+	void openBcFile(BcFile* bcf, std::string dirName, uint64_t tStamp);
 
 	std::string readBcFile(BcFile *bf, std::string dirName, uint64_t offset, uint32_t len);
 
@@ -51,22 +54,22 @@ public:
     // tombstone : valuesize=0
 	void delBcFile(BcFile *bf, const std::string& key);
 
-    void setBFS(std::map<uint32_t, BcFile*> bfs);
+    void setBFS(std::map<uint64_t, BcFile*> bfs);
 
-	std::map<uint32_t, BcFile*> getBFS();
+	std::map<uint64_t, BcFile*> getBFS();
 
 private:
-    std::map<uint32_t, BcFile*> bfs;  // file_timestamp -> .data / .hint
+    std::map<uint64_t, BcFile*> bfs;
 	
 	pthread_rwlock_t rwlock;   // lock
 
 	//crc32	:	tStamp	:	ksz	:	valueSz	:	key:value
-	//4		:		4	:	4	:	4		:	xxxx:xxxx
-    static const uint64_t HeaderSize = 16;
+	//4		:		8	:	4	:	4		:	xxxx:xxxx
+    static const uint64_t HeaderSize = 20;
 	
 	//tstamp	:	ksz	:	valuesz	:	valuePos	:	key
-	//4			:	4	:	4		:	8			:	xxxx
-	static const uint64_t HintHeaderSize = 20;
+	//8			:	4	:	4		:	8			:	xxxx
+	static const uint64_t HintHeaderSize = 24;
 };
 
 
