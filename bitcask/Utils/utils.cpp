@@ -72,17 +72,21 @@ char* getCrc32(const char* InStr, int len) {
 
     for(int i=0; i<len; i++) {        
         Crc = (Crc >> 8) ^ Crc32Table[(Crc & 0xFF) ^ InStr[i]];      
-    }   
+    }
      
     Crc ^= 0xFFFFFFFF;  
 
-    char buf[4];
+    static char buf[4];
     buf[0] = Crc >> 24;
     buf[1] = Crc >> 16;
     buf[2] = Crc >> 8;
     buf[3] = Crc;
 
-    return buf;    
+    std::cout<<"crc32 size : "<<strlen(buf)<<std::endl;
+    std::cout<<"crc32 : "<<buf<<std::endl;
+
+    // return std::to_string(Crc);
+    return buf;  
 }
 
 void createWriteableFile(Bitcask *bc) {

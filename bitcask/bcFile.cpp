@@ -125,8 +125,9 @@
 
         char dataHeader[20];
 		char* crc32 = new char[4](); 
+		std::cout<<"offsetcrc32 : "<<valueOffset<<std::endl;
 		crc32 = getCrc32(strData.c_str(), strData.size());
-//		std::cout<<"crc32 : "<<crc32<<std::endl;
+		std::cout<<"crc32 : "<<crc32<<std::endl;
 		memcpy(dataHeader, crc32, 4);
 		//EncodeDataHeader(dataHeader, ts, kSz, valueSz);
 		dataHeader[4] = ts >> 56;
