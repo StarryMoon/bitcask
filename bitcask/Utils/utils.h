@@ -38,7 +38,8 @@ void inputUntilTrue(T& tobeInput, std::string msg, F judgeFunc){
 //generate the str in range of a-z &A-Z
 std::string getRandStr(int length);
 
-char* getCrc32(const char* InStr, int len);
+// char* getCrc32(const char* InStr, int len);
+std::string getCrc32(const char* InStr, int len);
 
 void checkActiveFile(Bitcask *bc);
 

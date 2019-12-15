@@ -100,6 +100,7 @@
 
 			// strlen : '\0'
 			std::cout<<"read value size : "<<strlen(buffer)<<std::endl;
+			std::cout<<"read value size : "<<str.size()<<std::endl;
 			return str.substr(0, len);
 		}
 		in.close();
@@ -124,11 +125,12 @@
         std::cout<<"offset : "<<valueOffset<<std::endl;
 
         char dataHeader[20];
-		char* crc32 = new char[4](); 
+		// char* crc32 = new char[4](); 
+		std::string crc32;
 		std::cout<<"offsetcrc32 : "<<valueOffset<<std::endl;
 		crc32 = getCrc32(strData.c_str(), strData.size());
 		std::cout<<"crc32 : "<<crc32<<std::endl;
-		memcpy(dataHeader, crc32, 4);
+		memcpy(dataHeader, crc32.c_str(), crc32.size());
 		//EncodeDataHeader(dataHeader, ts, kSz, valueSz);
 		dataHeader[4] = ts >> 56;
 		dataHeader[5] = ts >> 48;
@@ -225,10 +227,11 @@
         auto valueOffset = bf->file_offset + HeaderSize + strtoull(keySize.c_str(), NULL, 10);
 	    std::string strData = timestamp + keySize + valueSize + key;
 		//char *ch = getCrc32(strData.c_str(), strData.size());
-		char* crc32 = getCrc32(strData.c_str(), strData.size());      // char*
-        
+		//char* crc32 = getCrc32(strData.c_str(), strData.size());      // char*
+        std::string crc32 = getCrc32(strData.c_str(), strData.size());
+
 		char ch[1000];
-		EncodeData(ch, crc32, strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), key, NULL); 
+		//EncodeData(ch, crc32.c_str(), strtoul(timestamp.c_str(), NULL, 10), strtoul(keySize.c_str(), NULL, 10), strtoul(valueSize.c_str(), NULL, 10), key, NULL); 
 		write(bf->fp, ch, sizeof(ch));
 	   
 	    //std::string strHint = timestamp + keySize + valueSize + std::to_string(valueOffset) + key;

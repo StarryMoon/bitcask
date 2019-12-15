@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include "../bitcask.h"
 #include "../bcFile.h"
+#include <sstream>
 
 int getRandomInt() {
 	//errror
@@ -51,7 +52,9 @@ std::string getRandStr(int length) {
     return retStr;
 }
 
-char* getCrc32(const char* InStr, int len) {
+std::string getCrc32(const char* InStr, int len) {
+
+    std::cout<<"entering crc32() "<<std::endl;
   
     unsigned int Crc32Table[256];    
     int i,j;      
@@ -67,26 +70,39 @@ char* getCrc32(const char* InStr, int len) {
         }      
         Crc32Table[i] = Crc;      
     }      
-     
+    std::cout<<"crc32 -"<<std::endl;
+
+    if (InStr == NULL) {
+        std::cout<<"crc32 string is null."<<std::endl;
+    }
+    std::cout<<"crc32 string length. : "<<strlen(InStr)<<std::endl;
+
     Crc=0xffffffff; 
 
     for(int i=0; i<len; i++) {        
         Crc = (Crc >> 8) ^ Crc32Table[(Crc & 0xFF) ^ InStr[i]];      
     }
-     
+    std::cout<<"crc32 ---"<<std::endl;
+
     Crc ^= 0xFFFFFFFF;  
 
-    static char buf[4];
+    static char buf[4];     // out of the range of ASCII code.
     buf[0] = Crc >> 24;
     buf[1] = Crc >> 16;
     buf[2] = Crc >> 8;
     buf[3] = Crc;
 
-    std::cout<<"crc32 size : "<<strlen(buf)<<std::endl;
-    std::cout<<"crc32 : "<<buf<<std::endl;
+    std::stringstream ss_Crc32;
+	ss_Crc32<<std::hex<<Crc;
 
-    // return std::to_string(Crc);
-    return buf;  
+    //std::cout<<"crc32 buf size : "<<strlen(buf)<<std::endl;
+    //std::cout<<"crc32() buf: "<<buf<<std::endl;
+    //std::cout<<"crc32() crc: "<<Crc<<std::endl;
+    std::cout<<"crc32() crc hex: "<<ss_Crc32.str()<<std::endl;
+
+    return ss_Crc32.str();
+    //return std::to_string(ss_Crc32.str());
+    //return buf;  
 }
 
 void createWriteableFile(Bitcask *bc) {
