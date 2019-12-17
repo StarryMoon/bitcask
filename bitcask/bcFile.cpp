@@ -81,31 +81,41 @@
 	}
 
 	std::string BcFiles::readBcFile(BcFile *bf, std::string dirName, uint64_t offset, uint32_t len) {
-        std::ifstream in;
-		in.open(dirName + "/" + std::to_string(bf->file_id) + ".data", std::iostream::in);
-        in.seekg(offset, std::iostream::beg);
+        //std::ifstream in;
+		//in.open(dirName + "/" + std::to_string(bf->file_id) + ".data", std::iostream::in);
+        //in.seekg(offset, std::iostream::beg);
 
-		char *buffer = new char[len]();
-//		std::cout<<"read value : "<<strlen(buffer)<<std::endl;
-        in.read(buffer, len);      // 128 --> ??
-
-		std::string str = buffer;
-		std::cout<<"read file value str : "<<str<<std::endl;
-	
-	    // strlen <--> '\0'   a error occured
-		if (strlen(buffer) != len) {     
-		    //std::cout<<"read value len : "<<len<<std::endl;
-			std::streamsize s_size =  in.gcount();
-			std::cout<<"read s_size : "<<s_size<<std::endl;
-
-			// strlen : '\0'
-			std::cout<<"read value size : "<<strlen(buffer)<<std::endl;
-			std::cout<<"read value size : "<<str.size()<<std::endl;
-			return str.substr(0, len);
+        int inFd;
+		unsigned char *buffer = new unsigned char[len]();
+		std::string fPath = dirName + "/" + std::to_string(bf->file_id) + ".data";
+		inFd = open(fPath.c_str(), O_RDONLY,S_IRUSR);
+        if (inFd == -1) {
+            std::cout<<"c open fail"<<std::endl;
 		}
-		in.close();
+		int flag;
+		lseek(inFd, offset, SEEK_SET);
+		flag = read(inFd, buffer, len);
+		std::cout<<"c read : "<<flag<<std::endl;
+		std::cout<<"c read buf : "<<buffer<<std::endl;
 
-		return str;
+	    // strlen <--> '\0'   a error occured
+		//strlen(buffer) != len)
+
+        std::string val_str;
+		for (int i=0; i<len; i++) {
+			uint32_t asciiCode = (uint32_t)(buffer[i]);
+			if ( asciiCode > 122 || asciiCode < 48) {
+				std::cout<<"char ascii code : "<<asciiCode<<std::endl; 
+				buffer[i] = '0';
+			}
+			std::string s_tmp(1, buffer[i]);
+			val_str += s_tmp;
+		}
+        std::cout<<"c read str : "<<val_str<<" size : "<<val_str.size()<<std::endl;
+
+        close(inFd);
+
+		return val_str;
 	}
 
 	Entry* BcFiles::writeBcFile(BcFile *bf, const std::string& key, const std::string& value, MessageQueue *cq) {

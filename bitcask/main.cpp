@@ -14,7 +14,7 @@
 void TestPut() {
 	std::cout<<"TestPut()"<<std::endl;
 	static Bitcask bc;
-	const int circleTimes = 100000;
+	const int circleTimes = 1000000;
     std::vector<int> keyVector;
 	int overwriteRatio = 50;   // --> 50%
 	for (int i=0; i< circleTimes; i++) {

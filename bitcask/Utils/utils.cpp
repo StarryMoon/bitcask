@@ -71,11 +71,8 @@ std::string getCrc32(const char* InStr, int len) {
         Crc32Table[i] = Crc;      
     }      
     std::cout<<"crc32 -"<<std::endl;
-
-    if (InStr == NULL) {
-        std::cout<<"crc32 string is null."<<std::endl;
-    }
-    std::cout<<"crc32 string length. : "<<strlen(InStr)<<std::endl;
+//    std::cout<<"crc32 string : "<<InStr<<std::endl;
+//    std::cout<<"crc32 string length. : "<<strlen(InStr)<<" len : "<<len<<std::endl;
 
     Crc=0xffffffff; 
 
@@ -95,9 +92,6 @@ std::string getCrc32(const char* InStr, int len) {
     std::stringstream ss_Crc32;
 	ss_Crc32<<std::hex<<Crc;
 
-    //std::cout<<"crc32 buf size : "<<strlen(buf)<<std::endl;
-    //std::cout<<"crc32() buf: "<<buf<<std::endl;
-    //std::cout<<"crc32() crc: "<<Crc<<std::endl;
     std::cout<<"crc32() crc hex: "<<ss_Crc32.str()<<std::endl;
 
     return ss_Crc32.str();
