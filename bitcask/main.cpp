@@ -14,7 +14,7 @@
 void TestPut() {
 	std::cout<<"TestPut()"<<std::endl;
 	static Bitcask bc;
-	const int circleTimes = 1000000;
+	const int circleTimes = 100;
     std::vector<int> keyVector;
 	int overwriteRatio = 50;   // --> 50%
 	for (int i=0; i< circleTimes; i++) {
@@ -73,6 +73,27 @@ void thread_fun(MessageQueue *arguments )
             write(bf->fp, dataHeader, 20);
 		    write(bf->fp, key.c_str(), kSz);
 		    write(bf->fp, value.c_str(), valueSz);
+
+               // range_write
+               struct flock fl;
+               fl.l_type = F_WRLCK;
+               fl.l_whence = SEEK_SET;
+               fl.l_start = 0;
+               fl.l_len = 0;
+
+               if (fcntl(fd, F_SETLK, &fl) == -1) {
+                   perror("fcntl(F_SETLK)");
+                   exit(EXIT_FAILURE);
+               }
+
+               fl.l_type = F_UNLCK;
+
+               if (fcntl(fd, F_SETLK, &fl) == -1) {
+                   perror("fcntl(F_SETLK)");
+                   exit(EXIT_FAILURE);
+                }
+
+                close(fd);
 
             write(bf->hintFp, hintHeader, 24);
 		    write(bf->hintFp, key.c_str(), kSz);

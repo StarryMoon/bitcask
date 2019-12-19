@@ -85,6 +85,27 @@
 		//in.open(dirName + "/" + std::to_string(bf->file_id) + ".data", std::iostream::in);
         //in.seekg(offset, std::iostream::beg);
 
+		// range_read :
+           /* struct flock fl;
+              memset(&fl, 0, sizeof(fl));
+              fl.l_type = F_RDLCK;     
+              fl.l_whence = SEEK_SET;
+              fl.l_start = offset;         
+              fl.l_len = len;
+
+			  if (fcntl(fd, F_SETLKW, &fl) == -1) {
+                  perror("fcntl(F_SETLKW)");
+                  exit(EXIT_FAILURE);
+              }
+
+			  fl.l_type = F_UNLCK;
+
+              if (fcntl(fd, F_SETLK, &fl) == -1) {
+                  perror("fcntl(F_SETLK)");
+                  exit(EXIT_FAILURE);
+              }   
+           */
+
         int inFd;
 		unsigned char *buffer = new unsigned char[len]();
 		std::string fPath = dirName + "/" + std::to_string(bf->file_id) + ".data";
