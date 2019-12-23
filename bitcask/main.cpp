@@ -25,11 +25,11 @@ void TestPut() {
 
     MessageQueue *cq = new MessageQueue();
 
-	std::thread gc_thread([](Bitcask bc) {
+/*	std::thread gc_thread([](Bitcask bc) {
         bc.merge();
     }, bc);
 	gc_thread.join();
-
+*/
     
     std::cout<<"--------------put----------------"<<std::endl;
 	for (int i = 0; i < circleTimes; i++) {
@@ -53,7 +53,7 @@ void TestPut() {
 	//bc.get(std::to_string(9));
 */
     std::cout<<"--------------merge 1--------------"<<std::endl;
-//    bc.merge();
+    bc.merge();
 	std::cout<<"--------------merge 2--------------"<<std::endl;
 //	bc.merge();
     delete(cq);
