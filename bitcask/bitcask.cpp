@@ -100,11 +100,12 @@ std::string Bitcask::get(std::string key) {
 		return NULL;
 	}
 
+    pthread_rwlock_unlock(&rwlock);
+
     std::string value = this->getBCF()->readBcFile(bf, this->getDirName(), file_offset, value_size);
 	
 	std::cout<<"value : "<<value<<std::endl;
 
-	pthread_rwlock_unlock(&rwlock);
 	return value;
 }
 
