@@ -38,7 +38,7 @@ void HashTable::set(std::string key, Entry *val){
 
 	int num = stoi(key, NULL, 10);
     int idx = num % SIZE;
-	int flag = num / 1000;
+	int flag = num / 10000;
 
     std::cout<<"hash set idx : "<<idx<<std::endl;
 
@@ -87,7 +87,7 @@ Entry* HashTable::get(std::string key){
 	std::cout<<"hash get "<<std::endl;
 	int num = stoi(key, NULL, 10);
     int idx = num % SIZE;
-	int flag = num / 1000;
+	int flag = num / 10000;
 	pthread_rwlock_rdlock(&rwlock[flag]);
 	
     //hash conflict

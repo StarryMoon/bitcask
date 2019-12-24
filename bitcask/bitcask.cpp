@@ -63,6 +63,10 @@ Bitcask::Bitcask(){
 
 	writePID(this->getLocker(), file_id);
     pthread_rwlock_init(&rwlock, NULL);
+
+	for (int i=0; i<10000; i++) {
+        pthread_rwlock_init(&rwLock[i], NULL);
+	}	
 }
 
 Bitcask::~Bitcask() {
@@ -76,15 +80,24 @@ Bitcask::~Bitcask() {
 	this->activeFile = NULL;
 //	delete(hashTable);
 	hashTable = NULL;
-	pthread_rwlock_destroy(&rwlock);  
+	pthread_rwlock_destroy(&rwlock);
+
+	for (int i=0; i<10000; i++) {
+        pthread_rwlock_destroy(&rwLock[i]); 
+	}  
 }
 
 std::string Bitcask::get(std::string key) {
+	// int num = stoi(key, NULL, 10);
+	// int flag = num / 10000;
+	// pthread_rwlock_rdlock(&rwLock[flag]);
+
 	pthread_rwlock_rdlock(&rwlock);
 	
 	Entry *e = this->hashTable->get(key);
 	if (e == NULL) {
         pthread_rwlock_unlock(&rwlock);
+		// pthread_rwlock_unlock(&rwlock[flag]);
 		return "";
 	}
 
@@ -96,11 +109,13 @@ std::string Bitcask::get(std::string key) {
 	BcFile *bf = getFileState(file_id);
 	if (bf == NULL) {
 		pthread_rwlock_unlock(&rwlock);
+		// pthread_rwlock_unlock(&rwLock[flag]);
         std::cout<<"not exists."<<std::endl;
 		return NULL;
 	}
 
     pthread_rwlock_unlock(&rwlock);
+	// pthread_rwlock_unlock(&rwLock[flag]);
 
     std::string value = this->getBCF()->readBcFile(bf, this->getDirName(), file_offset, value_size);
 	
@@ -111,6 +126,9 @@ std::string Bitcask::get(std::string key) {
 
 void Bitcask::put(const std::string& key, const std::string& value, MessageQueue *cq) {
     pthread_rwlock_wrlock(&rwlock);
+	// int num = stoi(key, NULL, 10);
+	// int flag = num / 10000;
+	// pthread_rwlock_wrlock(&rwLock[flag]);
 
 	checkActiveFile(this);
 
@@ -118,7 +136,8 @@ void Bitcask::put(const std::string& key, const std::string& value, MessageQueue
 	
 	this->hashTable->set(key, e);
 
-	pthread_rwlock_unlock(&rwlock); 
+	pthread_rwlock_unlock(&rwlock);
+	// pthread_rwlock_unlock(&rwLock[flag]); 
 	
 	//while (writeFlag.test_and_set());
 	//writeFlag.clear(); 
@@ -204,12 +223,17 @@ void Bitcask::merge() {
 		std::cout<<"insert key : "<<key<<std::endl;
 		Entry *e_hint = iter->second;
 		pthread_rwlock_rdlock(&rwlock);
+		// int num = stoi(key, NULL, 10);
+	    // int flag = num / 10000;
+	    // pthread_rwlock_rdlock(&rwLock[flag]);
 		Entry *e_hashtable = this->hashTable->get(key);
 		if (e_hashtable == NULL) {
 			pthread_rwlock_unlock(&rwlock);
+			// pthread_rwlock_unlock(&rwLock[flag]);
 			return;
 		}
 		pthread_rwlock_unlock(&rwlock);
+		// pthread_rwlock_rdlock(&rwLock[flag]);
  
 		if (!e_hint->isEqual(e_hashtable)) {    // false
 			continue;
@@ -227,14 +251,17 @@ void Bitcask::merge() {
 			std::cout<<"merge value size : "<<value.size()<<std::endl;
 
 			pthread_rwlock_wrlock(&rwlock);
+	    // pthread_rwlock_wrlock(&rwLock[flag]);
 			Entry *e_hashtable_again = this->hashTable->get(key);
 			if (e_hashtable_again == NULL) {
 				pthread_rwlock_unlock(&rwlock);
+				// pthread_rwlock_unlock(&rwLock[flag]);
 				return;
 			}
 
 			if (!e_hint->isEqual(e_hashtable_again)) {
 				pthread_rwlock_unlock(&rwlock);
+				// pthread_rwlock_unlock(&rwLock[flag]);
 				continue;
 			}
 
@@ -268,6 +295,7 @@ void Bitcask::merge() {
             MessageQueue *cq = NULL;
 			Entry *entry = bcf->writeBcFile(bf, key, value, cq);
             pthread_rwlock_unlock(&rwlock);
+			// pthread_rwlock_unlock(&rwLock[flag]);
 
             std::cout<<"merge hash : "<<std::endl;
 			this->hashTable->set(key, entry);

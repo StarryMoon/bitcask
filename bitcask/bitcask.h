@@ -70,6 +70,8 @@ private:
 	int locker;                 // dir lock
 	pthread_rwlock_t rwlock;    // read-write lock
 
+    pthread_rwlock_t rwLock[10000];
+
     // map: insert --> return directly/not overlap
 	// [key] = value  --> overlap
 	// vector   key->file_info   duplicate items exist   
