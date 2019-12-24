@@ -216,6 +216,16 @@ void Bitcask::merge() {
 		}else {
 			//read value first
 
+            uint64_t file_id_ = e_hint->getFileId();
+	        uint64_t file_offset_ = e_hint->getFileOffset();
+            uint32_t value_size_ = e_hint->getValueSize();
+            uint64_t tstamp_ = e_hint->getTstamp();
+		    BcFile *bf_ = this->getFileState(file_id_);
+            std::cout<<"val : "<<value_size_<<std::endl;
+            std::string value = this->getBCF()->readBcFile(bf_, this->getDirName(), file_offset_, value_size_);
+			std::cout<<"merge value : "<<value<<std::endl;
+			std::cout<<"merge value size : "<<value.size()<<std::endl;
+
 			pthread_rwlock_wrlock(&rwlock);
 			Entry *e_hashtable_again = this->hashTable->get(key);
 			if (e_hashtable_again == NULL) {
@@ -228,16 +238,6 @@ void Bitcask::merge() {
 				continue;
 			}
 
-			uint64_t file_id_ = e_hint->getFileId();
-	        uint64_t file_offset_ = e_hint->getFileOffset();
-            uint32_t value_size_ = e_hint->getValueSize();
-            uint64_t tstamp_ = e_hint->getTstamp();
-		    BcFile *bf_ = this->getFileState(file_id_);
-
-            std::cout<<"val : "<<value_size_<<std::endl;
-            std::string value = this->getBCF()->readBcFile(bf_, this->getDirName(), file_offset_, value_size_);
-			std::cout<<"merge value : "<<value<<std::endl;
-			std::cout<<"merge value size : "<<value.size()<<std::endl;
 			auto offset = bf->file_offset;
 			auto logSize = this->getLogSize();
 			if (offset >= logSize) {
