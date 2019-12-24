@@ -36,7 +36,7 @@ Bitcask::Bitcask(){
     // scan hint file
     std::vector<std::string>* existHintFiles;
 //	scanHintFiles(existHintFiles);
-//    parseHintFiles(existHintFiles);
+//  parseHintFiles(existHintFiles);
 
     //get the last file_id
     uint64_t file_id = getLastFileInfo(existHintFiles);
@@ -115,9 +115,9 @@ void Bitcask::put(const std::string& key, const std::string& value, MessageQueue
 
 	Entry *e = this->getBCF()->writeBcFile(this->getActiveFile(), key, value, cq);
 	
-	pthread_rwlock_unlock(&rwlock); 
-
 	this->hashTable->set(key, e);
+
+	pthread_rwlock_unlock(&rwlock); 
 	
 	//while (writeFlag.test_and_set());
 	//writeFlag.clear(); 
@@ -195,9 +195,7 @@ void Bitcask::merge() {
         throw std::runtime_error("hint file open error.");
     }
     bf->hintFp = fd_hint;
-   
 	bf->file_offset = 0;
-
 
     std::vector<std::pair<std::string, Entry*>>::iterator iter;
     for(iter = eArray.begin(); iter != eArray.end(); iter++) {

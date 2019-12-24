@@ -99,7 +99,7 @@ void thread_fun(MessageQueue *arguments )
             write(bf->hintFp, hintHeader, 24);
 		    write(bf->hintFp, key.c_str(), kSz);
 
-            if ( 0 == data->data ) //Thread end.
+            if (0 == data->data) //Thread end.
                 break;
             else
                 delete data;
