@@ -28,10 +28,7 @@ void TestPut() {
 
     MessageQueue *cq = new MessageQueue();
 
-//	std::thread gc_thread([](Bitcask bc) {
-//    bc.merge();
-//    }, bc);
-std::thread gc_thread(&Bitcask::merge, &bc);
+    std::thread gc_thread(&Bitcask::merge, &bc);
 /*
     #define THREAD_NUM 3
     std::thread threads[THREAD_NUM];

@@ -173,7 +173,7 @@ void Bitcask::fold(void (*f)(const std::string& key)) {
 
 void Bitcask::merge() {
 	std::cout<<"merrrge"<<std::endl;
-	usleep(1000000);
+	usleep(10000);
 //    sleep(1);
 //	while(true) {
 	// temporary merged dir
