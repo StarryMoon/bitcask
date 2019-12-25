@@ -108,7 +108,6 @@ Entry* HashTable::get(std::string key){
 void HashTable::del(std::string key) {
 /*	pthread_rwlock_wrlock(&rwlock);
     
-
 	pthread_rwlock_unlock(&rwlock); 
 	return;
 */	

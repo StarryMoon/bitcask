@@ -238,9 +238,10 @@
         /*
 		   if (cq != NULL) {
 			   Task *pTask = new Task(bf->fp, bf->hintFp, 0, 0, (std::to_string(dataHeader)+key+value).c_str(), (std::to_string(hintHeader)+key).c_str());
-               cq.PushTask( pTask );
+               cq.PushTask(pTask);
 		   }
- 	
+
+		   cq.response();
 		*/
 
         return new Entry(bf->file_id, valueOffset, valueSz, ts);

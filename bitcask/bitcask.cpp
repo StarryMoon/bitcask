@@ -172,7 +172,8 @@ void Bitcask::fold(void (*f)(const std::string& key)) {
 }
 
 void Bitcask::merge() {
-	usleep(10000);
+	std::cout<<"merrrge"<<std::endl;
+	usleep(1000000);
 //    sleep(1);
 //	while(true) {
 	// temporary merged dir
@@ -299,7 +300,7 @@ void Bitcask::merge() {
 
             std::cout<<"merge hash : "<<std::endl;
 			this->hashTable->set(key, entry);
-			//delete(bf_);
+			// delete(bf_);
 			std::cout<<"merge hash"<<std::endl;
 	    }
 	}
@@ -328,13 +329,12 @@ void Bitcask::merge() {
 //std::cout<<"not delete..."<<std::endl;
 
 	    //std::string command = "rm -rf " + path;
-		std::string delete_data_command = "rm -f " + path + std::to_string(remove_file_id) + ".data" ;
-	    system(delete_data_command.c_str());
-		std::string delete_hint_command = "rm -f " + path + std::to_string(remove_file_id) + ".hint" ;
-	    system(delete_hint_command.c_str());		
+//		std::string delete_data_command = "rm -f " + path + std::to_string(remove_file_id) + ".data" ;
+//	    system(delete_data_command.c_str());
+//		std::string delete_hint_command = "rm -f " + path + std::to_string(remove_file_id) + ".hint" ;
+//	    system(delete_hint_command.c_str());		
 	}
 
-	
 	std::cout<<"merge..."<<std::endl;
 //	sleep(1);
 //	}

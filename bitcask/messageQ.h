@@ -35,8 +35,15 @@ public:
     void PushTask(PTask pTask);
     PTask PopTask();
 
+    bool respondse();
+    void doAction();
+
 private:
     std::mutex m_queueMutex;
     std::condition_variable m_cond; 
     std::queue<PTask> m_queue;
+
+    bool ready = false;
+    std::mutex mtx;
+    std::condition_variable cv;
 };

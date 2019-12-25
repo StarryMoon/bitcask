@@ -22,7 +22,7 @@
         PTask pRtn = NULL;
         std::unique_lock<std::mutex> lock(m_queueMutex);
         while (m_queue.empty()) {
-            m_cond.wait_for(lock, std::chrono::seconds(1));
+            m_cond.wait_for(lock, std::chrono::seconds(1)); // wait > 1s
         }
 
         if (!m_queue.empty()) {
@@ -35,6 +35,16 @@
         return pRtn;
     }
 
-/*
- *
-*/
+    bool MessageQueue::respondse() {
+        std::unique_lock <std::mutex> lck(mtx);
+        while (!ready) {
+            cv.wait(lck);
+        }
+        return true;
+    }
+
+    void MessageQueue::doAction() {
+        std::unique_lock <std::mutex> lck(mtx);
+        ready = true;
+        cv.notify_all();
+    }

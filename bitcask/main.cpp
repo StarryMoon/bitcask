@@ -10,6 +10,9 @@
 #include <vector>
 #include "messageQ.h"
 #include <string>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 void TestPut() {
 	std::cout<<"TestPut()"<<std::endl;
@@ -25,10 +28,20 @@ void TestPut() {
 
     MessageQueue *cq = new MessageQueue();
 
-/*	std::thread gc_thread([](Bitcask bc) {
-        bc.merge();
-    }, bc);
-	gc_thread.join();
+//	std::thread gc_thread([](Bitcask bc) {
+//    bc.merge();
+//    }, bc);
+std::thread gc_thread(&Bitcask::merge, &bc);
+/*
+    #define THREAD_NUM 3
+    std::thread threads[THREAD_NUM];
+    for (int i=0; i<THREAD_NUM; ++i ) {
+        threads[i] = std::thread(thread_fun, &cq);
+	}
+
+    for (int i=0; i<THREAD_NUM; ++i) { 
+        threads[i].join();
+	}
 */
     
     std::cout<<"--------------put----------------"<<std::endl;
@@ -42,6 +55,7 @@ void TestPut() {
 		std::cout<<"value : "<<value<<std::endl;
 		//break;
 	}
+
 /*    std::cout<<"--------------get----------------"<<std::endl;
     for (int i = 0; i < circleTimes; i++) {
 		auto key = keyVector[i];
@@ -53,90 +67,117 @@ void TestPut() {
 	//bc.get(std::to_string(9));
 */
     std::cout<<"--------------merge 1--------------"<<std::endl;
-    bc.merge();
+//    std::thread gc_thread([](Bitcask bc) {
+//    bc.merge();
+//    }, bc);
+//    std::thread gc_thread(&Bitcask::merge, &bc);
+
+    gc_thread.join();
+//    bc.merge();
 	std::cout<<"--------------merge 2--------------"<<std::endl;
-//	bc.merge();
+//	  bc.merge();
     delete(cq);
 	return;
 }
 
-void thread_fun(MessageQueue *arguments )
-{
-    while (true)
-    {
-        PTask data = arguments->PopTask();   // lock
+void thread_fun(MessageQueue *arguments ) {   
+    int counter = 1000;      // 1000 k/v ==> file
+    int data_fd = -1;
+    int hint_fd = -1;
+    uint64_t data_offset = 0;
+    uint64_t hint_offset = 0;
+    std::string data_content;
+    std::string hint_content;
 
-        if (data != NULL)
-        {
-            std::cout<<"Thread is: "<<std::this_thread::get_id()<<std::endl;
-            //write data to file
-			/*
-            write(bf->fp, dataHeader, 20);
-		    write(bf->fp, key.c_str(), kSz);
-		    write(bf->fp, value.c_str(), valueSz);
-
-               // range_write
-               struct flock fl;
-               fl.l_type = F_WRLCK;
-               fl.l_whence = SEEK_SET;
-               fl.l_start = 0;
-               fl.l_len = 0;
-
-               if (fcntl(fd, F_SETLK, &fl) == -1) {
-                   perror("fcntl(F_SETLK)");
-                   exit(EXIT_FAILURE);
-               }
-
-               fl.l_type = F_UNLCK;
-
-               if (fcntl(fd, F_SETLK, &fl) == -1) {
-                   perror("fcntl(F_SETLK)");
-                   exit(EXIT_FAILURE);
-                }
-
-                close(fd);
-
-            write(bf->hintFp, hintHeader, 24);
-		    write(bf->hintFp, key.c_str(), kSz);
-
-            if (0 == data->data) //Thread end.
+    while (true) {
+        PTask kv_task;
+        while (--counter) {
+            kv_task = arguments->PopTask();   // lock
+            if (kv_task != NULL) {
+                std::cout<<"Thread is: "<<std::this_thread::get_id()<<std::endl;
+                // splice the k/v
+                if (counter=9999) {
+                    data_fd = kv_task->data_fd;
+                    hint_fd = kv_task->hint_fd;
+                    data_offset = kv_task->data_offset;
+                    hint_offset = kv_task->hint_offset;
+                    data_content = std::string(kv_task->data_content);
+                    hint_content = std::string(kv_task->hint_content);
+                } else {
+                    if (data_fd == kv_task->data_fd && hint_fd == kv_task->hint_fd) {
+                        data_content += std::string(kv_task->data_content);
+                        hint_content += std::string(kv_task->hint_content);
+                    } else {
+                        break;
+                    }
+                }  
+            } else {
                 break;
-            else
-                delete data;
-			*/
+            }
         }
-    }
 
+        write(data_fd, data_content.c_str(), data_content.size());
+        write(hint_fd, hint_content.c_str(), hint_content.size());
+
+        /*
+        // range_write
+        struct flock fl;
+        memset(&fl, 0, sizeof(fl));
+        fl.l_type = F_WRLCK;
+        fl.l_whence = SEEK_SET;
+        fl.l_start = data_offset;
+        fl.l_len = data_content.size();
+
+        if (fcntl(fd, F_SETLK, &fl) == -1) {
+            perror("fcntl(F_SETLK)");
+            exit(EXIT_FAILURE);
+        }
+        write(data_fd, data_content.c_str(), data_content.size());
+
+        fl.l_type = F_UNLCK;
+        if (fcntl(fd, F_SETLK, &fl) == -1) {
+            perror("fcntl(F_SETLK)");
+            exit(EXIT_FAILURE);
+        }
+
+        struct flock hint_fl;
+        memset(&hint_fl, 0, sizeof(fl));
+        hint_fl.l_type = F_WRLCK;
+        hint_fl.l_whence = SEEK_SET;
+        hint_fl.l_start = hint_offset;
+        hint_fl.l_len = hint_content.size();
+
+        if (fcntl(hint_fd, F_SETLK, &hint_fl) == -1) {
+            perror("fcntl(F_SETLK)");
+            exit(EXIT_FAILURE);
+        }
+        write(hint_fd, hint_content.c_str(), hint_content.size());
+
+        hint_fl.l_type = F_UNLCK;
+        if (fcntl(hint_fd, F_SETLK, &hint_fl) == -1) {
+            perror("fcntl(F_SETLK)");
+            exit(EXIT_FAILURE);
+        }
+
+        //Thread end
+        if (0 == kv_task->data_content || kv_task == NULL) { 
+            break;
+        } else {
+            delete data;
+        }
+        */
+
+        arguments->doAction();
+        data_fd = -1;
+        hint_fd = -1;
+        counter = 1000;
+    }
+    
     return;
 }
 
-int main()
-{	
+int main() {	
 	TestPut();
     std::cout<<"test ending..."<<std::endl;
 	return 0;
 }
-
-/*
-    MessageQueue cq;
-
-    #define THREAD_NUM 3
-    std::thread threads[THREAD_NUM];
-
-    for (int i=0; i<THREAD_NUM; ++i ) {
-        threads[i] = std::thread(thread_fun, &cq );
-	}
-
-    int i = 100000;
-    while(i > 0) {
-        Task *pTask = new Task( --i );
-        cq.PushTask( pTask );
-    }
-
-    for (int i=0; i<THREAD_NUM; ++i) { 
-        threads[i].join();
-	}
-
-    //system( "pause" );
-    return 0;
-*/
