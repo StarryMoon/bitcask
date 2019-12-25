@@ -172,7 +172,6 @@ void Bitcask::fold(void (*f)(const std::string& key)) {
 }
 
 void Bitcask::merge() {
-	std::cout<<"merrrge"<<std::endl;
 	usleep(10000);
 //    sleep(1);
 //	while(true) {
@@ -181,6 +180,9 @@ void Bitcask::merge() {
 
     std::vector<std::string> *existHintFiles = new std::vector<std::string>();
 	scanHintFiles(existHintFiles);
+	if (existHintFiles->size() == 0) {
+		return;
+	}
 	std::vector<std::pair<std::string, Entry*>> eArray;
     eArray = scanEntry(existHintFiles);
 	std::cout<<"scan ending..."<<std::endl;
@@ -252,7 +254,7 @@ void Bitcask::merge() {
 			std::cout<<"merge value size : "<<value.size()<<std::endl;
 
 			pthread_rwlock_wrlock(&rwlock);
-	    // pthread_rwlock_wrlock(&rwLock[flag]);
+	        // pthread_rwlock_wrlock(&rwLock[flag]);
 			Entry *e_hashtable_again = this->hashTable->get(key);
 			if (e_hashtable_again == NULL) {
 				pthread_rwlock_unlock(&rwlock);

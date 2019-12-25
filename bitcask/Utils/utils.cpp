@@ -71,9 +71,6 @@ std::string getCrc32(const char* InStr, int len) {
         Crc32Table[i] = Crc;      
     }      
     std::cout<<"crc32 -"<<std::endl;
-//    std::cout<<"crc32 string : "<<InStr<<std::endl;
-//    std::cout<<"crc32 string length. : "<<strlen(InStr)<<" len : "<<len<<std::endl;
-
     Crc=0xffffffff; 
 
     for(int i=0; i<len; i++) {        
@@ -149,8 +146,8 @@ void checkActiveFile(Bitcask *bc) {
 void scanHintFiles(std::vector<std::string> *existHintFiles) {
     struct dirent *ptr;    
     DIR *dir;
-    std::string PATH = "./bitcaskTest";   // bc.dirName
-    dir = opendir(PATH.c_str());
+    std::string PATH = "./bitcaskTest";   // bc.dirName
+    dir = opendir(PATH.c_str());
     std::vector<std::string> files;
 
     while((ptr=readdir(dir))!=NULL) {
@@ -170,17 +167,21 @@ void scanHintFiles(std::vector<std::string> *existHintFiles) {
     
     for (int i = 0; i < files.size(); ++i)
     {
-        std::cout << files[i] << std::endl;
+        // std::cout << files[i] << std::endl;
     }
- 
+
+    std::sort(files.begin(), files.end());
+    // remove the active file
+    files.pop_back();
+
     closedir(dir);
 }
 
 std::vector<std::string>* listDataFiles() {
 	struct dirent *ptr;    
     DIR *dir;
-    std::string PATH = "./bitcaskTest";
-    dir = opendir(PATH.c_str()); 
+    std::string PATH = "./bitcaskTest";
+    dir = opendir(PATH.c_str());
     std::vector<std::string> files;
 /*
     while((ptr=readdir(dir))!=NULL) {
@@ -204,7 +205,7 @@ std::vector<std::string>* listDataFiles() {
  
     closedir(dir);
 
-    // sort ???
+    // sort
 */
 	return &files;
 }
