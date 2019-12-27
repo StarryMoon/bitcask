@@ -161,7 +161,7 @@ void Bitcask::del(std::string key) {
 
 	//this->hashTable.erase(key);
 	this->hashTable->set(key, NULL);
-    pthread_rwlock_unlock(&rwlock); 
+    pthread_rwlock_unlock(&rwlock);
 }
 
 void Bitcask::fold(void (*f)(const std::string& key)) {
