@@ -13,6 +13,12 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctime>
+#include <sys/time.h>
+#include "Utils/timeRela.h"
+
+//#define CLK_TCK CLOCKS_PER_SEC
+//#define CLOCKS_PER_SEC 100000000
 
 void TestPut() {
 	std::cout<<"TestPut()"<<std::endl;
@@ -48,8 +54,16 @@ void TestPut() {
         //auto key = i;
 		//auto key = 9;
 		auto value = getRandStr(128);
+    //    clock_t begin = clock();
+        uint64_t begin = getCurrentOfNanoSecond();
+        std::cout<<"begin : "<<begin<<std::endl;
 		bc.put(std::to_string(key), value, cq);
+    //    clock_t end = clock();
+        uint64_t end = getCurrentOfNanoSecond();
+        std::cout<<"end : "<<end<<std::endl;
 		std::cout<<"value : "<<value<<std::endl;
+        std::cout<<"duration time : "<<(end - begin)<<std::endl;
+    //  std::cout<<"duration time : "<<(end - begin)/CLK_TCK<<std::endl;
 		//break;
 	}
 

@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <iostream>
 
 std::string getStrToday(){
     auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -40,11 +41,23 @@ std::string getCurrentOfSecond() {
 uint64_t getCurrentOfMicroSecond() {
 
 	struct timeval tv;
-    gettimeofday(&tv,NULL);
+    gettimeofday(&tv, NULL);
 
 	uint64_t timeStamp = 1000000 * tv.tv_sec + tv.tv_usec;
 
     return timeStamp;
+}
+
+uint64_t getCurrentOfNanoSecond() {
+	struct timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	uint64_t time_stamp = ts.tv_nsec;
+//	uint64_t time_stamp = ts.tv_nsec + 1000 * tv.tv_usec;
+//    std::cout<<"b : "<<ts.tv_nsec<<std::endl;
+//    std::cout<<"n : "<<tv.tv_usec<<std::endl;
+	return time_stamp;
 }
 
 

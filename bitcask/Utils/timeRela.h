@@ -13,3 +13,5 @@ std::string getCurrentOfSecond();
 
 uint64_t getCurrentOfMicroSecond();
 //std::string getCurrentOfMicroSecond();
+
+uint64_t getCurrentOfNanoSecond();
