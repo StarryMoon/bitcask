@@ -126,7 +126,7 @@
 		for (int i=0; i<len; i++) {
 			uint32_t asciiCode = (uint32_t)(buffer[i]);
 			if ( asciiCode > 122 || asciiCode < 48) {
-				std::cout<<"char ascii code : "<<asciiCode<<std::endl; 
+			//	std::cout<<"char ascii code : "<<asciiCode<<std::endl; 
 				buffer[i] = '0';
 			}
 			std::string s_tmp(1, buffer[i]);

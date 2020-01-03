@@ -46,7 +46,12 @@ void TestPut() {
         threads[i].join();
 	}
 */
-    
+    int write_fd;
+    std::string write_path = "w.txt";
+    write_fd = open(write_path.c_str(), O_WRONLY|O_APPEND, S_IRUSR);
+    if (write_fd == -1) {
+        std::cout<<"write open error"<<std::endl;
+    }
     std::cout<<"--------------put----------------"<<std::endl;
 	for (int i = 0; i < circleTimes; i++) {
 		std::cout<<"i: "<<i<<std::endl;
@@ -55,28 +60,43 @@ void TestPut() {
 		//auto key = 9;
 		auto value = getRandStr(128);
     //    clock_t begin = clock();
-        uint64_t begin = getCurrentOfNanoSecond();
-        std::cout<<"begin : "<<begin<<std::endl;
+        uint64_t begin_put = getCurrentOfNanoSecond();
 		bc.put(std::to_string(key), value, cq);
     //    clock_t end = clock();
-        uint64_t end = getCurrentOfNanoSecond();
-        std::cout<<"end : "<<end<<std::endl;
+        uint64_t end_put = getCurrentOfNanoSecond();
+        uint64_t duration_time = end_put - begin_put;
+        std::cout<<"duration time : "<<duration_time<<std::endl;
+        std::string write_s = std::to_string(duration_time) + "\n";
+        write(write_fd, write_s.c_str(), write_s.size());
 		std::cout<<"value : "<<value<<std::endl;
-        std::cout<<"duration time : "<<(end - begin)<<std::endl;
-    //  std::cout<<"duration time : "<<(end - begin)/CLK_TCK<<std::endl;
 		//break;
 	}
 
-/*    std::cout<<"--------------get----------------"<<std::endl;
+/*
+//    std::thread gc_thread(&Bitcask::merge, &bc);
+    int read_fd;
+    std::string read_path = "r.txt";
+    read_fd = open(read_path.c_str(), O_WRONLY|O_APPEND, S_IRUSR);
+    if (read_fd == -1) {
+        std::cout<<"read open error"<<std::endl;
+    }
+    std::cout<<"--------------get----------------"<<std::endl;
     for (int i = 0; i < circleTimes; i++) {
 		auto key = keyVector[i];
 		//auto key = 9;
+        uint64_t begin_get = getCurrentOfNanoSecond();
 		auto value = bc.get(std::to_string(key));
+        uint64_t end_get = getCurrentOfNanoSecond();
+        uint64_t duration_time = end_get - begin_get;
+        std::cout<<"duration time : "<<duration_time<<std::endl;
+        std::string read_s = std::to_string(duration_time) + "\n";
+        write(read_fd, read_s.c_str(), read_s.size());
 		std::cout<<"value : "<<value<<std::endl;
 		//break;
 	}
 	//bc.get(std::to_string(9));
 */
+
     std::cout<<"--------------merge 1--------------"<<std::endl;
 //    std::thread gc_thread([](Bitcask bc) {
 //    bc.merge();

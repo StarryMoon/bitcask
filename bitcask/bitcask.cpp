@@ -303,7 +303,6 @@ void Bitcask::merge() {
             std::cout<<"merge hash : "<<std::endl;
 			this->hashTable->set(key, entry);
 			// delete(bf_);
-			std::cout<<"merge hash"<<std::endl;
 	    }
 	}
     
