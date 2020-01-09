@@ -8,8 +8,11 @@
 #include "entry.h"
 #include <pthread.h>
 #include <memory>
+#include <deque>
 
-
+/*
+*  active + deque
+*/
 struct HashItem {
     std::string key;
     Entry *entry;

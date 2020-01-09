@@ -66,14 +66,14 @@ void TestPut() {
         uint64_t end_put = getCurrentOfNanoSecond();
         uint64_t duration_time = end_put - begin_put;
         std::cout<<"duration time : "<<duration_time<<std::endl;
-        std::string write_s = std::to_string(duration_time) + "\n";
+        std::string write_s = std::to_string(i) + " " + std::to_string(duration_time/100) + "\n";
         write(write_fd, write_s.c_str(), write_s.size());
 		std::cout<<"value : "<<value<<std::endl;
 		//break;
 	}
 
-/*
-//    std::thread gc_thread(&Bitcask::merge, &bc);
+
+    //std::thread gc_thread(&Bitcask::merge, &bc);
     int read_fd;
     std::string read_path = "r.txt";
     read_fd = open(read_path.c_str(), O_WRONLY|O_APPEND, S_IRUSR);
@@ -89,13 +89,13 @@ void TestPut() {
         uint64_t end_get = getCurrentOfNanoSecond();
         uint64_t duration_time = end_get - begin_get;
         std::cout<<"duration time : "<<duration_time<<std::endl;
-        std::string read_s = std::to_string(duration_time) + "\n";
+        std::string read_s = std::to_string(i) + " " + std::to_string(duration_time/100) + "\n";
         write(read_fd, read_s.c_str(), read_s.size());
 		std::cout<<"value : "<<value<<std::endl;
 		//break;
 	}
 	//bc.get(std::to_string(9));
-*/
+
 
     std::cout<<"--------------merge 1--------------"<<std::endl;
 //    std::thread gc_thread([](Bitcask bc) {
